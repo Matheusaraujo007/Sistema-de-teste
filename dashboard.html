@@ -17,45 +17,14 @@
     ul { padding-left: 15px; margin: 5px 0; text-align: left; }
     .saldo { font-weight: bold; color: #dc3545; display: block; margin-top: 5px; }
     .assinatura { position: absolute; top: 10px; left: 10px; font-size: 12px; color: #555; }
-    
-    /* CORES DOS STATUS */
-    .status-amarelo { background: #fff3cd; color: #856404; font-weight: bold; }
-    .status-azul { background: #cce5ff; color: #004085; font-weight: bold; }
-    .status-lilas { background: #e2d6f3; color: #4a148c; font-weight: bold; }
-    .status-verde { background: #d4edda; color: #155724; font-weight: bold; }
-    .status-vermelho { background: #f8d7da; color: #721c24; font-weight: bold; }
-
-    /* Botões de filtro */
-    .filtros { text-align: center; margin: 20px 0; }
-    .filtros button { margin: 5px; padding: 8px 12px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px; }
-    .filtros button:hover { opacity: 0.8; }
 </style>
 </head>
 <body>
 
 <!-- Assinatura no canto superior esquerdo -->
-<div class="assinatura">
-  Desenvolvido por 
-  <a href="https://instagram.com/seu_usuario" target="_blank" style="text-decoration:none; color:#2f7fb3; font-weight:bold;">
-    MTScomputadores
-  </a>
-</div>
+<div class="assinatura">Desenvolvido por <strong>MTScomputadores</strong></div>
 
 <h1>📊 Dashboard de Pedidos</h1>
-
-<!-- Botões de filtro -->
-<div class="filtros">
-  <button onclick="filtrarProdutos('Todos')">Todos</button>
-  <button onclick="filtrarProdutos('Acrílico')">Acrílico</button>
-  <button onclick="filtrarProdutos('Placa')">Placa</button>
-  <button onclick="filtrarProdutos('Luminoso')">Luminoso</button>
-  <button onclick="filtrarProdutos('Bandeira')">Bandeira</button>
-  <button onclick="filtrarProdutos('Arte')">Arte</button>
-  <button onclick="filtrarProdutos('Faixa Refletiva')">Faixa Refletiva</button>
-  <button onclick="filtrarProdutos('Boné')">Boné</button>
-  <button onclick="filtrarProdutos('Blusa')">Blusa</button>
-  <button onclick="filtrarProdutos('Adesivos')">Adesivos</button>
-</div>
 
 <table id="tabelaPedidos">
     <thead>
@@ -81,20 +50,12 @@
 </table>
 
 <script>
-let todosPedidos = []; // para poder filtrar depois
-
 async function carregarPedidos() {
     const tbody = document.querySelector("#tabelaPedidos tbody");
     tbody.innerHTML = "";
 
     const res = await fetch("/api/pedidos");
-    todosPedidos = await res.json(); // salvar todos os pedidos
-    renderizarTabela(todosPedidos);
-}
-
-function renderizarTabela(pedidos) {
-    const tbody = document.querySelector("#tabelaPedidos tbody");
-    tbody.innerHTML = "";
+    const pedidos = await res.json();
 
     pedidos.forEach((pedido) => {
         let tr = document.createElement("tr");
@@ -119,14 +80,6 @@ function renderizarTabela(pedidos) {
         if (!pedido.valor_total) pedido.valor_total = valorTotalPedido;
         const saldoRestante = (Number(pedido.valor_total) - Number(pedido.valor_recebido || 0)).toFixed(2);
 
-        // cor do status
-        let statusClass = "";
-        if (pedido.status === "Aguardando Retorno") statusClass = "status-amarelo";
-        if (pedido.status === "Arte Aprovada") statusClass = "status-azul";
-        if (pedido.status === "Produzindo") statusClass = "status-lilas";
-        if (pedido.status === "Pedido Finalizado") statusClass = "status-verde";
-        if (pedido.status === "Cancelado") statusClass = "status-vermelho";
-
         tr.innerHTML = `
             <td>${pedido.vendedor || ""}</td>
             <td>${pedido.nome_cliente || ""}</td>
@@ -143,7 +96,7 @@ function renderizarTabela(pedidos) {
             <td>${pedido.data_pedido ? new Date(pedido.data_pedido).toLocaleDateString() : ""}</td>
             <td>${pedido.data_entrega ? new Date(pedido.data_entrega).toLocaleDateString() : ""}</td>
             <td>
-                <select class="${statusClass}" onchange="atualizarStatus(${pedido.id}, this.value, ${pedido.valor_recebido || 0}, '${pedido.vendedor}', '${pedido.telefone_cliente}')">
+                <select onchange="atualizarStatus(${pedido.id}, this.value, ${pedido.valor_recebido || 0}, '${pedido.vendedor}', '${pedido.telefone_cliente}')">
                     <option value="Aguardando Retorno" ${pedido.status === "Aguardando Retorno" ? "selected" : ""}>Aguardando Retorno</option>
                     <option value="Arte Aprovada" ${pedido.status === "Arte Aprovada" ? "selected" : ""}>Arte Aprovada</option>
                     <option value="Produzindo" ${pedido.status === "Produzindo" ? "selected" : ""}>Produzindo</option>
@@ -157,23 +110,13 @@ function renderizarTabela(pedidos) {
     });
 }
 
-function filtrarProdutos(produto) {
-    if (produto === "Todos") {
-        renderizarTabela(todosPedidos);
-    } else {
-        const filtrados = todosPedidos.filter(pedido => 
-            pedido.itens.some(item => item.produto.toLowerCase().includes(produto.toLowerCase()))
-        );
-        renderizarTabela(filtrados);
-    }
-}
-
 async function atualizarStatus(id, novoStatus, valorRecebido, vendedor, telefone) {
     await fetch("/api/pedidos", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status: novoStatus, valorRecebido, vendedor, telefoneCliente: telefone })
     });
+    alert("Status atualizado para: " + novoStatus);
     carregarPedidos();
 }
 
@@ -183,6 +126,7 @@ async function atualizarValorRecebido(id, valorRecebido, status, vendedor, telef
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, valorRecebido, status, vendedor, telefoneCliente: telefone })
     });
+    alert(`Valor recebido atualizado para: R$ ${valorRecebido.toFixed(2)}`);
     carregarPedidos();
 }
 
