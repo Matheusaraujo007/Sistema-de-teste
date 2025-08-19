@@ -247,19 +247,56 @@ function atualizarTotalModal(){
 }
 
 window.salvarEdicao = async function(){
-    const container=document.getElementById("produtosContainer");
+    const container = document.getElementById("produtosContainer");
     const novosItens = Array.from(container.children).map(div=>({
         produto: div.querySelector("input[type=text]").value,
         quantidade: Number(div.querySelector("input[type=number]:nth-child(2)").value),
         valorUnit: Number(div.querySelector("input[type=number]:nth-child(3)").value)
     }));
-    const id=window.pedidoAtualEditar.id;
-    await fetch("/api/pedidos",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,itens:novosItens})});
-    fecharModal(); carregarPedidos();
+    const id = window.pedidoAtualEditar.id;
+
+    // Atualiza no backend
+    await fetch("/api/pedidos",{
+        method:"PUT",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({id,itens:novosItens})
+    });
+
+    // Atualiza a tabela localmente
+    const pedido = window.todosPedidos.find(p=>p.id===id);
+    if(pedido){
+        pedido.itens = novosItens;
+
+        // Calcula valor total
+        let valorTotalPedido = novosItens.reduce((acc,item)=>acc + item.quantidade * item.valorUnit, 0);
+        pedido.valor_total = valorTotalPedido;
+
+        const tr = Array.from(document.querySelectorAll("#tabelaPedidos tbody tr"))
+                        .find(r => Number(r.children[6].textContent.replace(/[^0-9.,]/g,'')) || 0 === pedido.valor_total);
+
+        if(tr){
+            // Atualiza coluna Produtos, Quantidade, Valor Unitário e Valor Total
+            let produtosHTML = "<ul>", quantidadesHTML = "<ul>", valoresUnitHTML = "<ul>";
+            novosItens.forEach(item=>{
+                produtosHTML += `<li>${item.produto}</li>`;
+                quantidadesHTML += `<li>${item.quantidade}</li>`;
+                valoresUnitHTML += `<li>R$ ${item.valorUnit.toFixed(2)}</li>`;
+            });
+            produtosHTML+="</ul>"; quantidadesHTML+="</ul>"; valoresUnitHTML+="</ul>";
+
+            tr.children[3].innerHTML = produtosHTML;
+            tr.children[4].innerHTML = quantidadesHTML;
+            tr.children[5].innerHTML = valoresUnitHTML;
+            tr.children[6].textContent = `R$ ${valorTotalPedido.toFixed(2)}`;
+
+            // Atualiza saldo
+            const valorRecebido = Number(tr.children[7].querySelector("input").value || 0);
+            tr.children[8].textContent = `R$ ${(valorTotalPedido - valorRecebido).toFixed(2)}`;
+        }
+    }
+
+    fecharModal();
 }
-
-window.fecharModal=function(){document.getElementById("modalEditar").style.display="none";}
-
 // Inicializa
 carregarPedidos();
 </script>
