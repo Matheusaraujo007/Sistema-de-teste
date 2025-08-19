@@ -41,15 +41,16 @@ export default async function handler(req, res) {
 
     } else if (req.method === 'PUT') {
       // Atualiza pedido (pode ser valor recebido, status, vendedor, telefone_cliente OU itens)
-      const { id, valorRecebido, status, vendedor, telefoneCliente, itens } = req.body;
+      const { id, valorRecebido, status, vendedor, telefoneCliente, itens, valor_total } = req.body;
 
       if (itens) {
-        // Atualiza os itens
+        // Atualiza os itens e valor_total se fornecido
         await client.query(
           `UPDATE pedidos 
-           SET itens = $1
-           WHERE id = $2`,
-          [JSON.stringify(itens), id]
+           SET itens = $1,
+               valor_total = $2
+           WHERE id = $3`,
+          [JSON.stringify(itens), valor_total, id]
         );
       } else {
         // Atualiza dados básicos
