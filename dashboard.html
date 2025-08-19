@@ -5,47 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📊 Dashboard de Pedidos</title>
 <style>
-    body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; position: relative; }
-    h1 { text-align: center; color: #333; margin-top: 40px; }
-    table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-    th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; vertical-align: middle; }
-    th { background: #2f7fb3; color: white; }
-    select, button, input[type="number"], input[type="text"] { padding: 5px; border-radius: 4px; border: 1px solid #ccc; }
-    input[type="number"] { text-align: right; width: 80px; }
-    input[type="text"] { width: 250px; margin-bottom: 15px; }
-    button { background: green; color: white; cursor: pointer; }
-    button:hover { background: darkgreen; }
-    ul { padding-left: 15px; margin: 5px 0; text-align: left; }
-    .saldo { font-weight: bold; color: #dc3545; display: block; margin-top: 5px; }
-    .assinatura { position: absolute; top: 10px; left: 10px; font-size: 12px; color: #555; }
-    
-    /* CORES DOS STATUS */
-    .status-amarelo { background: #fff3cd; color: #856404; font-weight: bold; }
-    .status-azul { background: #cce5ff; color: #004085; font-weight: bold; }
-    .status-lilas { background: #e2d6f3; color: #4a148c; font-weight: bold; }
-    .status-verde { background: #d4edda; color: #155724; font-weight: bold; }
-    .status-vermelho { background: #f8d7da; color: #721c24; font-weight: bold; }
+body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; position: relative; }
+h1 { text-align: center; color: #333; margin-top: 40px; }
+table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; vertical-align: middle; }
+th { background: #2f7fb3; color: white; }
+select, button, input[type="number"], input[type="text"] { padding: 5px; border-radius: 4px; border: 1px solid #ccc; }
+input[type="number"] { text-align: right; width: 80px; }
+input[type="text"] { width: 250px; margin-bottom: 5px; }
+button { background: green; color: white; cursor: pointer; }
+button:hover { background: darkgreen; }
+ul { padding-left: 15px; margin: 5px 0; text-align: left; }
+.saldo { font-weight: bold; color: #dc3545; display: block; margin-top: 5px; }
+.assinatura { position: absolute; top: 10px; left: 10px; font-size: 12px; color: #555; }
+.status-amarelo { background: #fff3cd; color: #856404; font-weight: bold; }
+.status-azul { background: #cce5ff; color: #004085; font-weight: bold; }
+.status-lilas { background: #e2d6f3; color: #4a148c; font-weight: bold; }
+.status-verde { background: #d4edda; color: #155724; font-weight: bold; }
+.status-vermelho { background: #f8d7da; color: #721c24; font-weight: bold; }
+.filtros { text-align: center; margin: 20px 0; }
+.filtros button { margin: 5px; padding: 8px 12px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px; background: #2f7fb3; color: white; }
+.filtros button:hover { opacity: 0.8; }
+.filtros button.ativo { background: #155d82; }
 
-    /* Botões de filtro */
-    .filtros { text-align: center; margin: 20px 0; }
-    .filtros button { margin: 5px; padding: 8px 12px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px; background: #2f7fb3; color: white; }
-    .filtros button:hover { opacity: 0.8; }
-    .filtros button.ativo { background: #155d82; }
-
-    /* Modal */
-    #modalEditar { display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
-        background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
-    #modalEditar div { background:white; padding:20px; border-radius:10px; width:400px; max-height:80%; overflow-y:auto; }
-    #modalEditar input { margin-bottom:5px; width:calc(100% - 10px); }
+/* Modal */
+#modalEditar { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
+#modalEditar div { background:white; padding:20px; border-radius:10px; width:90%; max-width:500px; max-height:90%; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+.linhaItem { display:flex; gap:5px; align-items:center; }
+.linhaItem input { flex:1; padding:5px; }
+.totalPedido { font-weight:bold; text-align:right; margin-top:5px; }
 </style>
 </head>
 <body>
 
 <div class="assinatura">
   Desenvolvido por 
-  <a href="https://instagram.com/mts_computadores" target="_blank" style="text-decoration:none; color:#2f7fb3; font-weight:bold;">
-    MTScomputadores
-  </a>
+  <a href="https://instagram.com/mts_computadores" target="_blank" style="text-decoration:none; color:#2f7fb3; font-weight:bold;">MTScomputadores</a>
 </div>
 
 <h1>📊 Dashboard de Pedidos</h1>
@@ -88,13 +83,12 @@
     <tbody></tbody>
 </table>
 
-<!-- Modal de Edição -->
 <div id="modalEditar">
   <div>
     <h3>Editar Pedido</h3>
     <div id="produtosContainer"></div>
     <button onclick="adicionarLinhaProduto()">➕ Adicionar Produto</button>
-    <br><br>
+    <div class="totalPedido" id="totalPedido">Total: R$ 0.00</div>
     <button onclick="salvarEdicao()">💾 Salvar</button>
     <button onclick="fecharModal()">❌ Fechar</button>
   </div>
@@ -105,7 +99,6 @@ window.todosPedidos = [];
 window.filtroProduto = "Todos";
 window.pedidoAtualEditar = null;
 
-// -------------------- Funções principais --------------------
 window.carregarPedidos = async function() {
     const res = await fetch("/api/pedidos");
     window.todosPedidos = await res.json();
@@ -115,8 +108,8 @@ window.carregarPedidos = async function() {
 
 function ordenarPedidos() {
     window.todosPedidos.sort((a, b) => {
-        if (a.status === "Pedido Finalizado" && b.status !== "Pedido Finalizado") return 1;
-        if (a.status !== "Pedido Finalizado" && b.status === "Pedido Finalizado") return -1;
+        if(a.status==="Pedido Finalizado" && b.status!=="Pedido Finalizado") return 1;
+        if(a.status!=="Pedido Finalizado" && b.status==="Pedido Finalizado") return -1;
         return 0;
     });
 }
@@ -124,61 +117,44 @@ function ordenarPedidos() {
 function renderizarTabela(pedidos) {
     const tbody = document.querySelector("#tabelaPedidos tbody");
     tbody.innerHTML = "";
+    pedidos.forEach((pedido)=>{
+        let tr=document.createElement("tr");
+        let produtosHTML="<ul>", quantidadesHTML="<ul>", valoresUnitHTML="<ul>", valorTotalPedido=0;
+        if(Array.isArray(pedido.itens)) pedido.itens.forEach(item=>{
+            produtosHTML+=`<li>${item.produto}</li>`;
+            quantidadesHTML+=`<li>${item.quantidade}</li>`;
+            valoresUnitHTML+=`<li>R$ ${Number(item.valorUnit).toFixed(2)}</li>`;
+            valorTotalPedido+=Number(item.valorUnit)*Number(item.quantidade);
+        });
+        produtosHTML+="</ul>"; quantidadesHTML+="</ul>"; valoresUnitHTML+="</ul>";
+        if(!pedido.valor_total) pedido.valor_total=valorTotalPedido;
+        const saldoRestante=(Number(pedido.valor_total)-Number(pedido.valor_recebido||0)).toFixed(2);
+        let statusClass="";
+        if(pedido.status==="Aguardando Retorno") statusClass="status-amarelo";
+        if(pedido.status==="Arte Aprovada") statusClass="status-azul";
+        if(pedido.status==="Produzindo") statusClass="status-lilas";
+        if(pedido.status==="Pedido Finalizado") statusClass="status-verde";
+        if(pedido.status==="Cancelado") statusClass="status-vermelho";
 
-    pedidos.forEach((pedido) => {
-        let tr = document.createElement("tr");
-
-        let produtosHTML = "<ul>";
-        let quantidadesHTML = "<ul>";
-        let valoresUnitHTML = "<ul>";
-        let valorTotalPedido = 0;
-
-        if (Array.isArray(pedido.itens)) {
-            pedido.itens.forEach(item => {
-                produtosHTML += `<li>${item.produto}</li>`;
-                quantidadesHTML += `<li>${item.quantidade}</li>`;
-                valoresUnitHTML += `<li>R$ ${Number(item.valorUnit).toFixed(2)}</li>`;
-                valorTotalPedido += Number(item.valorUnit) * Number(item.quantidade);
-            });
-        }
-        produtosHTML += "</ul>";
-        quantidadesHTML += "</ul>";
-        valoresUnitHTML += "</ul>";
-
-        if (!pedido.valor_total) pedido.valor_total = valorTotalPedido;
-        const saldoRestante = (Number(pedido.valor_total) - Number(pedido.valor_recebido || 0)).toFixed(2);
-
-        let statusClass = "";
-        if (pedido.status === "Aguardando Retorno") statusClass = "status-amarelo";
-        if (pedido.status === "Arte Aprovada") statusClass = "status-azul";
-        if (pedido.status === "Produzindo") statusClass = "status-lilas";
-        if (pedido.status === "Pedido Finalizado") statusClass = "status-verde";
-        if (pedido.status === "Cancelado") statusClass = "status-vermelho";
-
-        tr.innerHTML = `
-            <td>${pedido.vendedor || ""}</td>
-            <td>${pedido.nome_cliente || ""}</td>
-            <td>${pedido.telefone_cliente || ""}</td>
+        tr.innerHTML=`
+            <td>${pedido.vendedor||""}</td>
+            <td>${pedido.nome_cliente||""}</td>
+            <td>${pedido.telefone_cliente||""}</td>
             <td>${produtosHTML}</td>
             <td>${quantidadesHTML}</td>
             <td>${valoresUnitHTML}</td>
             <td>R$ ${Number(pedido.valor_total).toFixed(2)}</td>
-            <td>
-                <input type="number" step="0.01" value="${pedido.valor_recebido || 0}" 
-                       onchange="atualizarValorRecebido(${pedido.id}, parseFloat(this.value), '${pedido.status}', '${pedido.vendedor}', '${pedido.telefone_cliente}')">
-            </td>
+            <td><input type="number" step="0.01" value="${pedido.valor_recebido||0}" onchange="atualizarValorRecebido(${pedido.id},parseFloat(this.value),'${pedido.status}','${pedido.vendedor}','${pedido.telefone_cliente}')"></td>
             <td class="saldo" id="saldo-${pedido.id}">R$ ${saldoRestante}</td>
-            <td>${pedido.data_pedido ? new Date(pedido.data_pedido).toLocaleDateString() : ""}</td>
-            <td>${pedido.data_entrega ? new Date(pedido.data_entrega).toLocaleDateString() : ""}</td>
-            <td>
-                <select class="${statusClass}" onchange="atualizarStatus(${pedido.id}, this.value, ${pedido.valor_recebido || 0}, '${pedido.vendedor}', '${pedido.telefone_cliente}')">
-                    <option value="Aguardando Retorno" ${pedido.status === "Aguardando Retorno" ? "selected" : ""}>Aguardando Retorno</option>
-                    <option value="Arte Aprovada" ${pedido.status === "Arte Aprovada" ? "selected" : ""}>Arte Aprovada</option>
-                    <option value="Produzindo" ${pedido.status === "Produzindo" ? "selected" : ""}>Produzindo</option>
-                    <option value="Pedido Finalizado" ${pedido.status === "Pedido Finalizado" ? "selected" : ""}>Pedido Finalizado</option>
-                    <option value="Cancelado" ${pedido.status === "Cancelado" ? "selected" : ""}>Cancelado</option>
-                </select>
-            </td>
+            <td>${pedido.data_pedido?new Date(pedido.data_pedido).toLocaleDateString():""}</td>
+            <td>${pedido.data_entrega?new Date(pedido.data_entrega).toLocaleDateString():""}</td>
+            <td><select class="${statusClass}" onchange="atualizarStatus(${pedido.id},this.value,${pedido.valor_recebido||0},'${pedido.vendedor}','${pedido.telefone_cliente}')">
+                <option value="Aguardando Retorno" ${pedido.status==="Aguardando Retorno"?"selected":""}>Aguardando Retorno</option>
+                <option value="Arte Aprovada" ${pedido.status==="Arte Aprovada"?"selected":""}>Arte Aprovada</option>
+                <option value="Produzindo" ${pedido.status==="Produzindo"?"selected":""}>Produzindo</option>
+                <option value="Pedido Finalizado" ${pedido.status==="Pedido Finalizado"?"selected":""}>Pedido Finalizado</option>
+                <option value="Cancelado" ${pedido.status==="Cancelado"?"selected":""}>Cancelado</option>
+            </select></td>
             <td>
                 <button onclick="editarPedido(${pedido.id})">✏️ Editar</button>
                 <button onclick="removerPedido(${pedido.id})">🗑️ Remover</button>
@@ -188,120 +164,103 @@ function renderizarTabela(pedidos) {
     });
 }
 
-window.aplicarFiltros = function() {
+// -------------------- Filtros e busca --------------------
+window.aplicarFiltros = function(){
     const termo = document.getElementById("busca").value.toLowerCase();
-    let filtrados = window.todosPedidos.filter(pedido => {
-        let texto = `${pedido.nome_cliente} ${pedido.telefone_cliente} ${pedido.vendedor}`;
-        if (Array.isArray(pedido.itens)) texto += pedido.itens.map(i => i.produto).join(" ");
+    let filtrados = window.todosPedidos.filter(p=>{
+        let texto=`${p.nome_cliente} ${p.telefone_cliente} ${p.vendedor}`;
+        if(Array.isArray(p.itens)) texto+=p.itens.map(i=>i.produto).join(" ");
         return texto.toLowerCase().includes(termo);
     });
-    if (window.filtroProduto !== "Todos") {
-        filtrados = filtrados.filter(p => 
-            p.itens.some(item => item.produto.toLowerCase().includes(window.filtroProduto.toLowerCase()))
-        );
-    }
+    if(window.filtroProduto!=="Todos") filtrados=filtrados.filter(p=>p.itens.some(i=>i.produto.toLowerCase().includes(window.filtroProduto.toLowerCase())));
     renderizarTabela(filtrados);
 }
 
-window.filtrarProdutos = function(produto) {
+window.filtrarProdutos = function(produto){
     window.filtroProduto = produto;
-    document.querySelectorAll(".filtros button").forEach(btn => btn.classList.remove("ativo"));
-    const btnAtivo = Array.from(document.querySelectorAll(".filtros button")).find(b => b.textContent === produto);
-    if (btnAtivo) btnAtivo.classList.add("ativo");
+    document.querySelectorAll(".filtros button").forEach(b=>b.classList.remove("ativo"));
+    const btnAtivo = Array.from(document.querySelectorAll(".filtros button")).find(b=>b.textContent===produto);
+    if(btnAtivo) btnAtivo.classList.add("ativo");
     aplicarFiltros();
 }
 
-window.atualizarStatus = async function(id, novoStatus, valorRecebido, vendedor, telefone) {
-    await fetch("/api/pedidos", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, status: novoStatus, valorRecebido, vendedor, telefoneCliente: telefone })
-    });
+// -------------------- Atualização pedidos --------------------
+window.atualizarStatus = async function(id, novoStatus, valorRecebido, vendedor, telefone){
+    await fetch("/api/pedidos",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,status:novoStatus,valorRecebido,vendedor,telefoneCliente:telefone})});
     carregarPedidos();
 }
 
-window.atualizarValorRecebido = async function(id, valorRecebido, status, vendedor, telefone) {
-    await fetch("/api/pedidos", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, valorRecebido, status, vendedor, telefoneCliente: telefone })
-    });
+window.atualizarValorRecebido = async function(id, valorRecebido, status, vendedor, telefone){
+    await fetch("/api/pedidos",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,valorRecebido,status,vendedor,telefoneCliente:telefone})});
     carregarPedidos();
 }
 
-window.removerPedido = async function(id) {
-    if (confirm("Deseja realmente remover este pedido?")) {
-        await fetch(`/api/pedidos?id=${id}`, { method: "DELETE" });
+window.removerPedido = async function(id){
+    if(confirm("Deseja realmente remover este pedido?")){
+        await fetch(`/api/pedidos?id=${id}`,{method:"DELETE"});
         carregarPedidos();
     }
 }
 
-// -------------------- Modal de edição --------------------
-window.editarPedido = function(id) {
-    window.pedidoAtualEditar = window.todosPedidos.find(p => p.id === id);
-    if (!window.pedidoAtualEditar) return;
+// -------------------- Modal edição --------------------
+window.editarPedido = function(id){
+    window.pedidoAtualEditar = window.todosPedidos.find(p=>p.id===id);
+    if(!window.pedidoAtualEditar) return;
 
     const modal = document.getElementById("modalEditar");
     modal.style.display = "flex";
 
     const container = document.getElementById("produtosContainer");
     container.innerHTML = "";
-    window.pedidoAtualEditar.itens.forEach((item, index) => {
-        const div = document.createElement("div");
-        div.style.marginBottom = "8px";
-        div.innerHTML = `
-            <input type="text" placeholder="Produto" value="${item.produto}" data-index="${index}" class="produtoInput">
-            <input type="number" placeholder="Quantidade" value="${item.quantidade}" data-index="${index}" class="quantidadeInput">
-            <input type="number" placeholder="Valor Unitário" value="${item.valorUnit}" data-index="${index}" class="valorInput">
-            <button onclick="removerLinhaProduto(${index})">🗑️</button>
-        `;
-        container.appendChild(div);
-    });
+    window.pedidoAtualEditar.itens.forEach((item,index)=>{criarLinhaProduto(item.produto,item.quantidade,item.valorUnit,index)});
+    atualizarTotalModal();
 }
 
-window.adicionarLinhaProduto = function() {
-    const container = document.getElementById("produtosContainer");
-    const index = container.children.length;
-    const div = document.createElement("div");
-    div.style.marginBottom = "8px";
-    div.innerHTML = `
-        <input type="text" placeholder="Produto" class="produtoInput" data-index="${index}">
-        <input type="number" placeholder="Quantidade" class="quantidadeInput" data-index="${index}">
-        <input type="number" placeholder="Valor Unitário" class="valorInput" data-index="${index}">
-        <button onclick="removerLinhaProduto(${index})">🗑️</button>
+function criarLinhaProduto(produto="", quantidade=1, valorUnit=0, index=null){
+    const container=document.getElementById("produtosContainer");
+    const idx = index!==null?index:container.children.length;
+    const div=document.createElement("div");
+    div.className="linhaItem";
+    div.innerHTML=`
+        <input type="text" placeholder="Produto" value="${produto}" oninput="atualizarTotalModal()">
+        <input type="number" placeholder="Quantidade" value="${quantidade}" min="0" oninput="atualizarTotalModal()">
+        <input type="number" placeholder="Valor Unitário" value="${valorUnit}" step="0.01" min="0" oninput="atualizarTotalModal()">
+        <button onclick="removerLinhaProduto(this)">🗑️</button>
     `;
     container.appendChild(div);
 }
 
-window.removerLinhaProduto = function(index) {
-    const container = document.getElementById("produtosContainer");
-    if (container.children[index]) container.removeChild(container.children[index]);
-}
+window.adicionarLinhaProduto = function(){ criarLinhaProduto(); }
 
-window.salvarEdicao = async function() {
-    const container = document.getElementById("produtosContainer");
-    const novosItens = Array.from(container.children).map(div => ({
-        produto: div.querySelector(".produtoInput").value,
-        quantidade: Number(div.querySelector(".quantidadeInput").value),
-        valorUnit: Number(div.querySelector(".valorInput").value)
-    }));
-    const id = window.pedidoAtualEditar.id;
+window.removerLinhaProduto = function(btn){ btn.parentElement.remove(); atualizarTotalModal(); }
 
-    await fetch("/api/pedidos", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, itens: novosItens })
+function atualizarTotalModal(){
+    const container=document.getElementById("produtosContainer");
+    let total=0;
+    Array.from(container.children).forEach(div=>{
+        const inputs=div.querySelectorAll("input");
+        const q=Number(inputs[1].value||0);
+        const v=Number(inputs[2].value||0);
+        total+=q*v;
     });
-
-    fecharModal();
-    carregarPedidos();
+    document.getElementById("totalPedido").textContent = `Total: R$ ${total.toFixed(2)}`;
 }
 
-window.fecharModal = function() {
-    document.getElementById("modalEditar").style.display = "none";
+window.salvarEdicao = async function(){
+    const container=document.getElementById("produtosContainer");
+    const novosItens = Array.from(container.children).map(div=>({
+        produto: div.querySelector("input[type=text]").value,
+        quantidade: Number(div.querySelector("input[type=number]:nth-child(2)").value),
+        valorUnit: Number(div.querySelector("input[type=number]:nth-child(3)").value)
+    }));
+    const id=window.pedidoAtualEditar.id;
+    await fetch("/api/pedidos",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,itens:novosItens})});
+    fecharModal(); carregarPedidos();
 }
 
-// -------------------- Inicialização --------------------
+window.fecharModal=function(){document.getElementById("modalEditar").style.display="none";}
+
+// Inicializa
 carregarPedidos();
 </script>
 
