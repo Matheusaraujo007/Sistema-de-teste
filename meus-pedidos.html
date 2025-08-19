@@ -140,10 +140,14 @@ async function carregarPedidos() {
             else if (s.includes("cancelado")) statusClasse = "cancelado";
 
             let produtosHTML = "<ul>";
-            if (p.itens) p.itens.forEach(i => {
-                produtosHTML += `<li>${i.produto} - ${i.quantidade} un. (${formatarMoeda(parseFloat(i.valorUnit))}) - Total: ${formatarMoeda(parseFloat(i.total))}</li>`;
-            });
-            produtosHTML += "</ul>";
+if (p.itens) p.itens.forEach(i => {
+    let qtd = parseFloat(i.quantidade) || 0;
+    let unit = parseFloat(i.valorUnit) || 0;
+    let totalItem = qtd * unit;
+
+    produtosHTML += `<li>${i.produto} - ${qtd} un. (${formatarMoeda(unit)}) - Total: ${formatarMoeda(totalItem)}</li>`;
+});
+produtosHTML += "</ul>";
 
             card.innerHTML = `
                 <div class="pedido-header">
