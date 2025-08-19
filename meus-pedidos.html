@@ -49,43 +49,61 @@ function formatarData(dataStr) {
     return `${dia}/${mes}/${ano}`;
 }
 
-async function carregarPedidos() {
-  const res = await fetch("/api/pedidos");
-  const pedidos = await res.json();
+async function carregarPedidos(){
+    const lista = document.getElementById("listaPedidos");
+    lista.innerHTML = "<p style='text-align:center;color:#666;'>Carregando pedidos...</p>";
 
-  const container = document.getElementById("listaPedidos");
-  container.innerHTML = "";
+    try {
+        const res = await fetch("/api/pedidos");
+        const pedidos = await res.json();
 
-  pedidos.forEach(pedido => {
-    const div = document.createElement("div");
-    div.classList.add("pedido-card");
+        if(!pedidos || pedidos.length === 0){
+            lista.innerHTML = "<p style='text-align:center;color:#666;'>Nenhum pedido encontrado.</p>";
+            return;
+        }
 
-    div.innerHTML = `
-      <h3>Pedido de ${pedido.vendedor}</h3>
-      <p><strong>Cliente:</strong> ${pedido.nome_cliente}</p>
-      <p><strong>Telefone:</strong> ${pedido.telefone_cliente}</p>
-      <p><strong>Produtos:</strong></p>
-      <ul>
-        ${pedido.itens.map(item => `
-          <li>${item.nome} - ${item.quantidade} un. (R$ ${item.valor})</li>
-        `).join("")}
-      </ul>
-      <p><strong>Valor Total:</strong> R$ ${pedido.valor_total}</p>
-      <p><strong>Valor Recebido:</strong> R$ ${pedido.valor_recebido}</p>
-      <p><strong>Data Pedido:</strong> ${pedido.data_pedido}</p>
-      <p><strong>Data Entrega:</strong> ${pedido.data_entrega}</p>
-      <span class="status">${pedido.status}</span>
-    `;
+        pedidos.sort((a,b) => new Date(b.data_pedido || b.dataPedido) - new Date(a.data_pedido || a.dataPedido));
 
-    container.appendChild(div);
-  });
+        lista.innerHTML = "";
+        pedidos.forEach(p => {
+            const card = document.createElement("div");
+            card.classList.add("pedido-card");
+
+            let statusClasse = "pendente";
+            const s = (p.status || "").toLowerCase();
+            if(s.includes("aprovada")) statusClasse = "aprovada";
+            else if(s.includes("finalizado")) statusClasse = "finalizado";
+            else if(s.includes("cancelado")) statusClasse = "cancelado";
+
+            let produtosHTML = "<ul>";
+            if(p.itens) p.itens.forEach(i => {
+                produtosHTML += `<li>${i.produto} - ${i.quantidade} un. (R$ ${parseFloat(i.valorUnit).toFixed(2)}) - Total: R$ ${parseFloat(i.total).toFixed(2)}</li>`;
+            });
+            produtosHTML += "</ul>";
+
+            card.innerHTML = `
+                <div class="pedido-header">
+                    <span>📋 Pedido de ${p.vendedor}</span>
+                    <span class="status ${statusClasse}">${p.status || "Aguardando Retorno"}</span>
+                </div>
+                <div class="pedido-info">
+                    <p><b>Cliente:</b> ${p.nome_cliente || p.nomeCliente}</p>
+                    <p><b>Telefone:</b> ${p.telefone_cliente || p.telefoneCliente}</p>
+                    <p><b>Produtos:</b> ${produtosHTML}</p>
+                    <p><b>Valor Total do Pedido:</b> R$ ${parseFloat(p.valor_total || p.valorTotal).toFixed(2)}</p>
+                    <p><b>Valor Recebido:</b> R$ ${parseFloat(p.valor_recebido || p.valorRecebido).toFixed(2)}</p>
+                    <p><b>Data Pedido:</b> ${formatarData(p.data_pedido || p.dataPedido)}</p>
+                    <p><b>Data Entrega:</b> ${formatarData(p.data_entrega || p.dataEntrega)}</p>
+                </div>
+            `;
+            lista.appendChild(card);
+        });
+    } catch(err){
+        lista.innerHTML = `<p style='text-align:center;color:red;'>Erro ao carregar pedidos: ${err.message}</p>`;
+    }
 }
 
-// Carrega inicialmente
 carregarPedidos();
-
-// Atualiza automaticamente a cada 5s
-setInterval(carregarPedidos, 5000);
 </script>
 </body>
 </html>
