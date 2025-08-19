@@ -167,7 +167,11 @@ function renderizarTabela(pedidos) {
                     <option value="Cancelado" ${pedido.status === "Cancelado" ? "selected" : ""}>Cancelado</option>
                 </select>
             </td>
-            <td><button onclick="removerPedido(${pedido.id})">🗑️ Remover</button></td>
+            <td>
+                <button onclick="editarPedido(${pedido.id})">✏️ Editar</button>
+                <button onclick="removerPedido(${pedido.id})">🗑️ Remover</button>
+            
+            </td>
         `;
         tbody.appendChild(tr);
     });
@@ -231,6 +235,18 @@ async function removerPedido(id) {
 
 carregarPedidos();
 </script>
+<!-- Modal de Edição -->
+<div id="modalEditar" style="display:none; position:fixed; top:0; left:0; 
+    width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+  <div style="background:white; padding:20px; border-radius:10px; width:400px;">
+    <h3>Editar Pedido</h3>
+    <div id="produtosContainer"></div>
+    <button onclick="adicionarLinhaProduto()">➕ Adicionar Produto</button>
+    <br><br>
+    <button onclick="salvarEdicao()">💾 Salvar</button>
+    <button onclick="fecharModal()">❌ Fechar</button>
+  </div>
+</div>
 
 </body>
 </html>
