@@ -70,3 +70,73 @@ export default async function handler(req, res) {
     client.release();
   }
 }
+
+let pedidoEmEdicao = null;
+
+function editarPedido(id) {
+    pedidoEmEdicao = todosPedidos.find(p => p.id === id);
+    const container = document.getElementById("produtosContainer");
+    container.innerHTML = "";
+
+    if (pedidoEmEdicao && Array.isArray(pedidoEmEdicao.itens)) {
+        pedidoEmEdicao.itens.forEach((item, index) => {
+            container.innerHTML += `
+              <div style="margin-bottom:10px;" id="produto-${index}">
+                Produto: <input type="text" value="${item.produto}">
+                Qtde: <input type="number" value="${item.quantidade}" style="width:60px;">
+                Valor: <input type="number" step="0.01" value="${item.valorUnit}" style="width:80px;">
+                <button onclick="removerLinhaProduto(${index})">❌</button>
+              </div>
+            `;
+        });
+    }
+
+    document.getElementById("modalEditar").style.display = "flex";
+}
+
+function adicionarLinhaProduto() {
+    const container = document.getElementById("produtosContainer");
+    const index = container.children.length;
+    container.innerHTML += `
+      <div style="margin-bottom:10px;" id="produto-${index}">
+        Produto: <input type="text" value="">
+        Qtde: <input type="number" value="1" style="width:60px;">
+        Valor: <input type="number" step="0.01" value="0" style="width:80px;">
+        <button onclick="removerLinhaProduto(${index})">❌</button>
+      </div>
+    `;
+}
+
+function removerLinhaProduto(index) {
+    const linha = document.getElementById(`produto-${index}`);
+    if (linha) linha.remove();
+}
+
+async function salvarEdicao() {
+    const container = document.getElementById("produtosContainer");
+    const divs = container.querySelectorAll("div");
+    let novosItens = [];
+
+    divs.forEach(div => {
+        const inputs = div.querySelectorAll("input");
+        novosItens.push({
+            produto: inputs[0].value,
+            quantidade: Number(inputs[1].value),
+            valorUnit: Number(inputs[2].value)
+        });
+    });
+
+    await fetch("/api/pedidos", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: pedidoEmEdicao.id, itens: novosItens })
+    });
+
+    fecharModal();
+    carregarPedidos();
+}
+
+function fecharModal() {
+    document.getElementById("modalEditar").style.display = "none";
+}
+
