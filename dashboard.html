@@ -10,21 +10,59 @@
     table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
     th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; vertical-align: middle; }
     th { background: #2f7fb3; color: white; }
-    select, button, input[type="number"] { padding: 5px; border-radius: 4px; border: 1px solid #ccc; }
+    select, button, input[type="number"], input[type="text"] { padding: 5px; border-radius: 4px; border: 1px solid #ccc; }
     input[type="number"] { text-align: right; width: 80px; }
+    input[type="text"] { width: 250px; margin-bottom: 15px; }
     button { background: green; color: white; cursor: pointer; }
     button:hover { background: darkgreen; }
     ul { padding-left: 15px; margin: 5px 0; text-align: left; }
     .saldo { font-weight: bold; color: #dc3545; display: block; margin-top: 5px; }
     .assinatura { position: absolute; top: 10px; left: 10px; font-size: 12px; color: #555; }
+    
+    /* CORES DOS STATUS */
+    .status-amarelo { background: #fff3cd; color: #856404; font-weight: bold; }
+    .status-azul { background: #cce5ff; color: #004085; font-weight: bold; }
+    .status-lilas { background: #e2d6f3; color: #4a148c; font-weight: bold; }
+    .status-verde { background: #d4edda; color: #155724; font-weight: bold; }
+    .status-vermelho { background: #f8d7da; color: #721c24; font-weight: bold; }
+
+    /* Botões de filtro */
+    .filtros { text-align: center; margin: 20px 0; }
+    .filtros button { margin: 5px; padding: 8px 12px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px; background: #2f7fb3; color: white; }
+    .filtros button:hover { opacity: 0.8; }
+    .filtros button.ativo { background: #155d82; }
 </style>
 </head>
 <body>
 
 <!-- Assinatura no canto superior esquerdo -->
-<div class="assinatura">Desenvolvido por <strong>MTScomputadores</strong></div>
+<div class="assinatura">
+  Desenvolvido por 
+  <a href="https://instagram.com/mts_computadores" target="_blank" style="text-decoration:none; color:#2f7fb3; font-weight:bold;">
+    MTScomputadores
+  </a>
+</div>
 
 <h1>📊 Dashboard de Pedidos</h1>
+
+<!-- Busca -->
+<div style="text-align:center;">
+  <input type="text" id="busca" placeholder="🔍 Buscar por cliente, produto ou telefone..." onkeyup="aplicarFiltros()">
+</div>
+
+<!-- Botões de filtro -->
+<div class="filtros">
+  <button onclick="filtrarProdutos('Todos')" class="ativo">Todos</button>
+  <button onclick="filtrarProdutos('Acrílico')">Acrílico</button>
+  <button onclick="filtrarProdutos('Placa')">Placa</button>
+  <button onclick="filtrarProdutos('Luminoso')">Luminoso</button>
+  <button onclick="filtrarProdutos('Bandeira')">Bandeira</button>
+  <button onclick="filtrarProdutos('Arte')">Arte</button>
+  <button onclick="filtrarProdutos('Faixa Refletiva')">Faixa Refletiva</button>
+  <button onclick="filtrarProdutos('Boné')">Boné</button>
+  <button onclick="filtrarProdutos('Blusa')">Blusa</button>
+  <button onclick="filtrarProdutos('Adesivos')">Adesivos</button>
+</div>
 
 <table id="tabelaPedidos">
     <thead>
@@ -50,12 +88,29 @@
 </table>
 
 <script>
+let todosPedidos = [];
+let filtroProduto = "Todos"; // filtro atual
+
 async function carregarPedidos() {
+    const res = await fetch("/api/pedidos");
+    todosPedidos = await res.json();
+
+    ordenarPedidos();
+    aplicarFiltros();
+}
+
+function ordenarPedidos() {
+    // coloca "Pedido Finalizado" no fim
+    todosPedidos.sort((a, b) => {
+        if (a.status === "Pedido Finalizado" && b.status !== "Pedido Finalizado") return 1;
+        if (a.status !== "Pedido Finalizado" && b.status === "Pedido Finalizado") return -1;
+        return 0;
+    });
+}
+
+function renderizarTabela(pedidos) {
     const tbody = document.querySelector("#tabelaPedidos tbody");
     tbody.innerHTML = "";
-
-    const res = await fetch("/api/pedidos");
-    const pedidos = await res.json();
 
     pedidos.forEach((pedido) => {
         let tr = document.createElement("tr");
@@ -80,6 +135,14 @@ async function carregarPedidos() {
         if (!pedido.valor_total) pedido.valor_total = valorTotalPedido;
         const saldoRestante = (Number(pedido.valor_total) - Number(pedido.valor_recebido || 0)).toFixed(2);
 
+        // cor do status
+        let statusClass = "";
+        if (pedido.status === "Aguardando Retorno") statusClass = "status-amarelo";
+        if (pedido.status === "Arte Aprovada") statusClass = "status-azul";
+        if (pedido.status === "Produzindo") statusClass = "status-lilas";
+        if (pedido.status === "Pedido Finalizado") statusClass = "status-verde";
+        if (pedido.status === "Cancelado") statusClass = "status-vermelho";
+
         tr.innerHTML = `
             <td>${pedido.vendedor || ""}</td>
             <td>${pedido.nome_cliente || ""}</td>
@@ -96,7 +159,7 @@ async function carregarPedidos() {
             <td>${pedido.data_pedido ? new Date(pedido.data_pedido).toLocaleDateString() : ""}</td>
             <td>${pedido.data_entrega ? new Date(pedido.data_entrega).toLocaleDateString() : ""}</td>
             <td>
-                <select onchange="atualizarStatus(${pedido.id}, this.value, ${pedido.valor_recebido || 0}, '${pedido.vendedor}', '${pedido.telefone_cliente}')">
+                <select class="${statusClass}" onchange="atualizarStatus(${pedido.id}, this.value, ${pedido.valor_recebido || 0}, '${pedido.vendedor}', '${pedido.telefone_cliente}')">
                     <option value="Aguardando Retorno" ${pedido.status === "Aguardando Retorno" ? "selected" : ""}>Aguardando Retorno</option>
                     <option value="Arte Aprovada" ${pedido.status === "Arte Aprovada" ? "selected" : ""}>Arte Aprovada</option>
                     <option value="Produzindo" ${pedido.status === "Produzindo" ? "selected" : ""}>Produzindo</option>
@@ -110,13 +173,43 @@ async function carregarPedidos() {
     });
 }
 
+function aplicarFiltros() {
+    const termo = document.getElementById("busca").value.toLowerCase();
+
+    let filtrados = todosPedidos.filter(pedido => {
+        let texto = `${pedido.nome_cliente} ${pedido.telefone_cliente} ${pedido.vendedor}`;
+        if (Array.isArray(pedido.itens)) {
+            texto += pedido.itens.map(i => i.produto).join(" ");
+        }
+        return texto.toLowerCase().includes(termo);
+    });
+
+    if (filtroProduto !== "Todos") {
+        filtrados = filtrados.filter(p => 
+            p.itens.some(item => item.produto.toLowerCase().includes(filtroProduto.toLowerCase()))
+        );
+    }
+
+    renderizarTabela(filtrados);
+}
+
+function filtrarProdutos(produto) {
+    filtroProduto = produto;
+
+    document.querySelectorAll(".filtros button").forEach(btn => btn.classList.remove("ativo"));
+    const btnAtivo = Array.from(document.querySelectorAll(".filtros button"))
+        .find(b => b.textContent === produto);
+    if (btnAtivo) btnAtivo.classList.add("ativo");
+
+    aplicarFiltros();
+}
+
 async function atualizarStatus(id, novoStatus, valorRecebido, vendedor, telefone) {
     await fetch("/api/pedidos", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status: novoStatus, valorRecebido, vendedor, telefoneCliente: telefone })
     });
-    alert("Status atualizado para: " + novoStatus);
     carregarPedidos();
 }
 
@@ -126,7 +219,6 @@ async function atualizarValorRecebido(id, valorRecebido, status, vendedor, telef
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, valorRecebido, status, vendedor, telefoneCliente: telefone })
     });
-    alert(`Valor recebido atualizado para: R$ ${valorRecebido.toFixed(2)}`);
     carregarPedidos();
 }
 
