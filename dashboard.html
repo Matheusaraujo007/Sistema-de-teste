@@ -28,169 +28,12 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 .filtros button:hover { opacity: 0.8; }
 .filtros button.ativo { background: #155d82; }
 
-/* ----------------- MODAL PROFISSIONAL ----------------- */
-#modalEditar {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4);
-    backdrop-filter: blur(4px);
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-    transition: opacity 0.3s ease;
-}
-
-#modalEditar.show {
-    display: flex;
-    animation: fadeIn 0.3s;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-#modalEditar div {
-    background: #fff;
-    padding: 25px 30px;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 550px;
-    max-height: 90%;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.25);
-    font-family: Arial, sans-serif;
-}
-
-#modalEditar h3 {
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 24px;
-    color: #2f7fb3;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 8px;
-}
-
-/* Container de produtos estilo card */
-#produtosContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.linhaItem {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 10px 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.linhaItem:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.linhaItem input {
-    flex: 1;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    transition: all 0.2s;
-}
-
-.linhaItem input:focus {
-    border-color: #2f7fb3;
-    outline: none;
-    box-shadow: 0 0 5px rgba(47,127,179,0.3);
-}
-
-.linhaItem button {
-    background: #dc3545;
-    color: #fff;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.2s;
-}
-
-.linhaItem button:hover {
-    background: #b02a37;
-}
-
-/* Total do pedido */
-.totalPedido {
-    font-weight: bold;
-    text-align: right;
-    font-size: 18px;
-    color: #333;
-    margin-top: 5px;
-}
-
-/* Botões Salvar e Fechar */
-#modalEditar .acoesModal {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-#modalEditar button.salvar {
-    flex: 1;
-    background: #2f7fb3;
-    color: #fff;
-    font-weight: bold;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-#modalEditar button.salvar:hover {
-    background: #155d82;
-}
-
-#modalEditar button.fechar {
-    flex: 1;
-    background: #6c757d;
-    color: #fff;
-    font-weight: bold;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-#modalEditar button.fechar:hover {
-    background: #495057;
-}
-
-/* Scroll interno estilizado */
-#modalEditar::-webkit-scrollbar {
-    width: 8px;
-}
-
-#modalEditar::-webkit-scrollbar-thumb {
-    background: rgba(47,127,179,0.5);
-    border-radius: 4px;
-}
-
-#modalEditar::-webkit-scrollbar-track {
-    background: #f0f0f0;
-    border-radius: 4px;
-}
+/* Modal */
+#modalEditar { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
+#modalEditar div { background:white; padding:20px; border-radius:10px; width:90%; max-width:500px; max-height:90%; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+.linhaItem { display:flex; gap:5px; align-items:center; }
+.linhaItem input { flex:1; padding:5px; }
+.totalPedido { font-weight:bold; text-align:right; margin-top:5px; }
 </style>
 </head>
 <body>
@@ -240,17 +83,14 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
     <tbody></tbody>
 </table>
 
-<!-- Modal Profissional -->
 <div id="modalEditar">
   <div>
     <h3>Editar Pedido</h3>
     <div id="produtosContainer"></div>
     <button onclick="adicionarLinhaProduto()">➕ Adicionar Produto</button>
     <div class="totalPedido" id="totalPedido">Total: R$ 0.00</div>
-    <div class="acoesModal">
-      <button class="salvar" onclick="salvarEdicao()">💾 Salvar</button>
-      <button class="fechar" onclick="fecharModal()">❌ Fechar</button>
-    </div>
+    <button onclick="salvarEdicao()">💾 Salvar</button>
+    <button onclick="fecharModal()">❌ Fechar</button>
   </div>
 </div>
 
