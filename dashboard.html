@@ -31,11 +31,16 @@
     .filtros button { margin: 5px; padding: 8px 12px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px; background: #2f7fb3; color: white; }
     .filtros button:hover { opacity: 0.8; }
     .filtros button.ativo { background: #155d82; }
+
+    /* Modal */
+    #modalEditar { display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+        background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
+    #modalEditar div { background:white; padding:20px; border-radius:10px; width:400px; max-height:80%; overflow-y:auto; }
+    #modalEditar input { margin-bottom:5px; width:calc(100% - 10px); }
 </style>
 </head>
 <body>
 
-<!-- Assinatura no canto superior esquerdo -->
 <div class="assinatura">
   Desenvolvido por 
   <a href="https://instagram.com/mts_computadores" target="_blank" style="text-decoration:none; color:#2f7fb3; font-weight:bold;">
@@ -45,12 +50,10 @@
 
 <h1>📊 Dashboard de Pedidos</h1>
 
-<!-- Busca -->
 <div style="text-align:center;">
   <input type="text" id="busca" placeholder="🔍 Buscar por cliente, produto ou telefone..." onkeyup="aplicarFiltros()">
 </div>
 
-<!-- Botões de filtro -->
 <div class="filtros">
   <button onclick="filtrarProdutos('Todos')" class="ativo">Todos</button>
   <button onclick="filtrarProdutos('Acrílico')">Acrílico</button>
@@ -82,25 +85,34 @@
             <th>Ação</th>
         </tr>
     </thead>
-    <tbody>
-        <!-- Pedidos aparecem aqui -->
-    </tbody>
+    <tbody></tbody>
 </table>
+
+<!-- Modal de Edição -->
+<div id="modalEditar">
+  <div>
+    <h3>Editar Pedido</h3>
+    <div id="produtosContainer"></div>
+    <button onclick="adicionarLinhaProduto()">➕ Adicionar Produto</button>
+    <br><br>
+    <button onclick="salvarEdicao()">💾 Salvar</button>
+    <button onclick="fecharModal()">❌ Fechar</button>
+  </div>
+</div>
 
 <script>
 let todosPedidos = [];
 let filtroProduto = "Todos"; // filtro atual
+let pedidoAtualEditar = null;
 
 async function carregarPedidos() {
     const res = await fetch("/api/pedidos");
     todosPedidos = await res.json();
-
     ordenarPedidos();
     aplicarFiltros();
 }
 
 function ordenarPedidos() {
-    // coloca "Pedido Finalizado" no fim
     todosPedidos.sort((a, b) => {
         if (a.status === "Pedido Finalizado" && b.status !== "Pedido Finalizado") return 1;
         if (a.status !== "Pedido Finalizado" && b.status === "Pedido Finalizado") return -1;
@@ -135,7 +147,6 @@ function renderizarTabela(pedidos) {
         if (!pedido.valor_total) pedido.valor_total = valorTotalPedido;
         const saldoRestante = (Number(pedido.valor_total) - Number(pedido.valor_recebido || 0)).toFixed(2);
 
-        // cor do status
         let statusClass = "";
         if (pedido.status === "Aguardando Retorno") statusClass = "status-amarelo";
         if (pedido.status === "Arte Aprovada") statusClass = "status-azul";
@@ -170,7 +181,6 @@ function renderizarTabela(pedidos) {
             <td>
                 <button onclick="editarPedido(${pedido.id})">✏️ Editar</button>
                 <button onclick="removerPedido(${pedido.id})">🗑️ Remover</button>
-            
             </td>
         `;
         tbody.appendChild(tr);
@@ -179,32 +189,24 @@ function renderizarTabela(pedidos) {
 
 function aplicarFiltros() {
     const termo = document.getElementById("busca").value.toLowerCase();
-
     let filtrados = todosPedidos.filter(pedido => {
         let texto = `${pedido.nome_cliente} ${pedido.telefone_cliente} ${pedido.vendedor}`;
-        if (Array.isArray(pedido.itens)) {
-            texto += pedido.itens.map(i => i.produto).join(" ");
-        }
+        if (Array.isArray(pedido.itens)) texto += pedido.itens.map(i => i.produto).join(" ");
         return texto.toLowerCase().includes(termo);
     });
-
     if (filtroProduto !== "Todos") {
         filtrados = filtrados.filter(p => 
             p.itens.some(item => item.produto.toLowerCase().includes(filtroProduto.toLowerCase()))
         );
     }
-
     renderizarTabela(filtrados);
 }
 
 function filtrarProdutos(produto) {
     filtroProduto = produto;
-
     document.querySelectorAll(".filtros button").forEach(btn => btn.classList.remove("ativo"));
-    const btnAtivo = Array.from(document.querySelectorAll(".filtros button"))
-        .find(b => b.textContent === produto);
+    const btnAtivo = Array.from(document.querySelectorAll(".filtros button")).find(b => b.textContent === produto);
     if (btnAtivo) btnAtivo.classList.add("ativo");
-
     aplicarFiltros();
 }
 
@@ -233,20 +235,80 @@ async function removerPedido(id) {
     }
 }
 
+// -------- Modal de edição --------
+function editarPedido(id) {
+    pedidoAtualEditar = todosPedidos.find(p => p.id === id);
+    if (!pedidoAtualEditar) return;
+
+    const modal = document.getElementById("modalEditar");
+    modal.style.display = "flex";
+
+    const container = document.getElementById("produtosContainer");
+    container.innerHTML = "";
+    pedidoAtualEditar.itens.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.style.marginBottom = "8px";
+        div.innerHTML = `
+            <input type="text" placeholder="Produto" value="${item.produto}" data-index="${index}" class="produtoInput">
+            <input type="number" placeholder="Quantidade" value="${item.quantidade}" data-index="${index}" class="quantidadeInput">
+            <input type="number" placeholder="Valor Unitário" value="${item.valorUnit}" data-index="${index}" class="valorInput">
+            <button onclick="removerLinhaProduto(${index})">🗑️</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function adicionarLinhaProduto() {
+    const container = document.getElementById("produtosContainer");
+    const index = container.children.length;
+    const div = document.createElement("div");
+    div.style.marginBottom = "8px";
+    div.innerHTML = `
+        <input type="text" placeholder="Produto" data-index="${index}" class="produtoInput">
+        <input type="number" placeholder="Quantidade" data-index="${index}" class="quantidadeInput">
+        <input type="number" placeholder="Valor Unitário" data-index="${index}" class="valorInput">
+        <button onclick="removerLinhaProduto(${index})">🗑️</button>
+    `;
+    container.appendChild(div);
+}
+
+function removerLinhaProduto(index) {
+    const container = document.getElementById("produtosContainer");
+    const linha = container.children[index];
+    if (linha) container.removeChild(linha);
+}
+
+async function salvarEdicao() {
+    const container = document.getElementById("produtosContainer");
+    const produtos = [];
+    for (let i = 0; i < container.children.length; i++) {
+        const div = container.children[i];
+        const produto = div.querySelector(".produtoInput").value;
+        const quantidade = parseFloat(div.querySelector(".quantidadeInput").value) || 0;
+        const valorUnit = parseFloat(div.querySelector(".valorInput").value) || 0;
+        produtos.push({ produto, quantidade, valorUnit });
+    }
+
+    await fetch("/api/pedidos", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            id: pedidoAtualEditar.id,
+            itens: produtos,
+            valor_total: produtos.reduce((sum, i) => sum + i.quantidade * i.valorUnit, 0)
+        })
+    });
+
+    fecharModal();
+    carregarPedidos();
+}
+
+function fecharModal() {
+    document.getElementById("modalEditar").style.display = "none";
+}
+
 carregarPedidos();
 </script>
-<!-- Modal de Edição -->
-<div id="modalEditar" style="display:none; position:fixed; top:0; left:0; 
-    width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
-  <div style="background:white; padding:20px; border-radius:10px; width:400px;">
-    <h3>Editar Pedido</h3>
-    <div id="produtosContainer"></div>
-    <button onclick="adicionarLinhaProduto()">➕ Adicionar Produto</button>
-    <br><br>
-    <button onclick="salvarEdicao()">💾 Salvar</button>
-    <button onclick="fecharModal()">❌ Fechar</button>
-  </div>
-</div>
 
 </body>
 </html>
