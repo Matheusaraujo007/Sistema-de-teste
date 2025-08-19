@@ -101,19 +101,20 @@
 </div>
 
 <script>
-let todosPedidos = [];
-let filtroProduto = "Todos"; // filtro atual
-let pedidoAtualEditar = null;
+window.todosPedidos = [];
+window.filtroProduto = "Todos";
+window.pedidoAtualEditar = null;
 
-async function carregarPedidos() {
+// -------------------- Funções principais --------------------
+window.carregarPedidos = async function() {
     const res = await fetch("/api/pedidos");
-    todosPedidos = await res.json();
+    window.todosPedidos = await res.json();
     ordenarPedidos();
     aplicarFiltros();
 }
 
 function ordenarPedidos() {
-    todosPedidos.sort((a, b) => {
+    window.todosPedidos.sort((a, b) => {
         if (a.status === "Pedido Finalizado" && b.status !== "Pedido Finalizado") return 1;
         if (a.status !== "Pedido Finalizado" && b.status === "Pedido Finalizado") return -1;
         return 0;
@@ -187,30 +188,30 @@ function renderizarTabela(pedidos) {
     });
 }
 
-function aplicarFiltros() {
+window.aplicarFiltros = function() {
     const termo = document.getElementById("busca").value.toLowerCase();
-    let filtrados = todosPedidos.filter(pedido => {
+    let filtrados = window.todosPedidos.filter(pedido => {
         let texto = `${pedido.nome_cliente} ${pedido.telefone_cliente} ${pedido.vendedor}`;
         if (Array.isArray(pedido.itens)) texto += pedido.itens.map(i => i.produto).join(" ");
         return texto.toLowerCase().includes(termo);
     });
-    if (filtroProduto !== "Todos") {
+    if (window.filtroProduto !== "Todos") {
         filtrados = filtrados.filter(p => 
-            p.itens.some(item => item.produto.toLowerCase().includes(filtroProduto.toLowerCase()))
+            p.itens.some(item => item.produto.toLowerCase().includes(window.filtroProduto.toLowerCase()))
         );
     }
     renderizarTabela(filtrados);
 }
 
-function filtrarProdutos(produto) {
-    filtroProduto = produto;
+window.filtrarProdutos = function(produto) {
+    window.filtroProduto = produto;
     document.querySelectorAll(".filtros button").forEach(btn => btn.classList.remove("ativo"));
     const btnAtivo = Array.from(document.querySelectorAll(".filtros button")).find(b => b.textContent === produto);
     if (btnAtivo) btnAtivo.classList.add("ativo");
     aplicarFiltros();
 }
 
-async function atualizarStatus(id, novoStatus, valorRecebido, vendedor, telefone) {
+window.atualizarStatus = async function(id, novoStatus, valorRecebido, vendedor, telefone) {
     await fetch("/api/pedidos", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -219,7 +220,7 @@ async function atualizarStatus(id, novoStatus, valorRecebido, vendedor, telefone
     carregarPedidos();
 }
 
-async function atualizarValorRecebido(id, valorRecebido, status, vendedor, telefone) {
+window.atualizarValorRecebido = async function(id, valorRecebido, status, vendedor, telefone) {
     await fetch("/api/pedidos", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -228,24 +229,24 @@ async function atualizarValorRecebido(id, valorRecebido, status, vendedor, telef
     carregarPedidos();
 }
 
-async function removerPedido(id) {
+window.removerPedido = async function(id) {
     if (confirm("Deseja realmente remover este pedido?")) {
         await fetch(`/api/pedidos?id=${id}`, { method: "DELETE" });
         carregarPedidos();
     }
 }
 
-// -------- Modal de edição --------
-function editarPedido(id) {
-    pedidoAtualEditar = todosPedidos.find(p => p.id === id);
-    if (!pedidoAtualEditar) return;
+// -------------------- Modal de edição --------------------
+window.editarPedido = function(id) {
+    window.pedidoAtualEditar = window.todosPedidos.find(p => p.id === id);
+    if (!window.pedidoAtualEditar) return;
 
     const modal = document.getElementById("modalEditar");
     modal.style.display = "flex";
 
     const container = document.getElementById("produtosContainer");
     container.innerHTML = "";
-    pedidoAtualEditar.itens.forEach((item, index) => {
+    window.pedidoAtualEditar.itens.forEach((item, index) => {
         const div = document.createElement("div");
         div.style.marginBottom = "8px";
         div.innerHTML = `
@@ -258,55 +259,49 @@ function editarPedido(id) {
     });
 }
 
-function adicionarLinhaProduto() {
+window.adicionarLinhaProduto = function() {
     const container = document.getElementById("produtosContainer");
     const index = container.children.length;
     const div = document.createElement("div");
     div.style.marginBottom = "8px";
     div.innerHTML = `
-        <input type="text" placeholder="Produto" data-index="${index}" class="produtoInput">
-        <input type="number" placeholder="Quantidade" data-index="${index}" class="quantidadeInput">
-        <input type="number" placeholder="Valor Unitário" data-index="${index}" class="valorInput">
+        <input type="text" placeholder="Produto" class="produtoInput" data-index="${index}">
+        <input type="number" placeholder="Quantidade" class="quantidadeInput" data-index="${index}">
+        <input type="number" placeholder="Valor Unitário" class="valorInput" data-index="${index}">
         <button onclick="removerLinhaProduto(${index})">🗑️</button>
     `;
     container.appendChild(div);
 }
 
-function removerLinhaProduto(index) {
+window.removerLinhaProduto = function(index) {
     const container = document.getElementById("produtosContainer");
-    const linha = container.children[index];
-    if (linha) container.removeChild(linha);
+    if (container.children[index]) container.removeChild(container.children[index]);
 }
 
-async function salvarEdicao() {
+window.salvarEdicao = async function() {
     const container = document.getElementById("produtosContainer");
-    const produtos = [];
-    for (let i = 0; i < container.children.length; i++) {
-        const div = container.children[i];
-        const produto = div.querySelector(".produtoInput").value;
-        const quantidade = parseFloat(div.querySelector(".quantidadeInput").value) || 0;
-        const valorUnit = parseFloat(div.querySelector(".valorInput").value) || 0;
-        produtos.push({ produto, quantidade, valorUnit });
-    }
+    const novosItens = Array.from(container.children).map(div => ({
+        produto: div.querySelector(".produtoInput").value,
+        quantidade: Number(div.querySelector(".quantidadeInput").value),
+        valorUnit: Number(div.querySelector(".valorInput").value)
+    }));
+    const id = window.pedidoAtualEditar.id;
 
     await fetch("/api/pedidos", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            id: pedidoAtualEditar.id,
-            itens: produtos,
-            valor_total: produtos.reduce((sum, i) => sum + i.quantidade * i.valorUnit, 0)
-        })
+        body: JSON.stringify({ id, itens: novosItens })
     });
 
     fecharModal();
     carregarPedidos();
 }
 
-function fecharModal() {
+window.fecharModal = function() {
     document.getElementById("modalEditar").style.display = "none";
 }
 
+// -------------------- Inicialização --------------------
 carregarPedidos();
 </script>
 
