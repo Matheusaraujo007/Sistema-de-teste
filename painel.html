@@ -72,6 +72,7 @@
         <path d="M12 3l9 9h-3v9h-12v-9h-3l9-9z"/>
       </svg>
       <span>Dashboard</span>
+      <span>Pedidos</span>
     </button>
 
     <button class="btn" onclick="abrirPagina('pedidos')">
@@ -100,7 +101,8 @@
       }
 
       if (pagina === "pedidos") {
-        conteudo.innerHTML = "<h1>📦 Aqui vão os pedidos</h1>";
+        conteudo.innerHTML = `
+         <iframe src="meus-pedidos.html"></iframe>`;
       }
 
       if (pagina === "config") {
