@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📊 Sistema com Sidebar</title>
+  <title>📊 Sistema </title>
   <style>
     body {
       margin: 0;
@@ -78,10 +78,6 @@
     <button class="btn" onclick="abrirPagina('pedidos')">
       📦 Pedidos
     </button>
-
-    <button class="btn" onclick="abrirPagina('config')">
-      ⚙️ Configurações
-    </button>
   </div>
 
   <!-- Área principal -->
@@ -103,10 +99,6 @@
       if (pagina === "pedidos") {
         conteudo.innerHTML = `
          <iframe src="meus-pedidos.html"></iframe>`;
-      }
-
-      if (pagina === "config") {
-        conteudo.innerHTML = "<h1>⚙️ Configurações do Sistema</h1>";
       }
     }
   </script>
