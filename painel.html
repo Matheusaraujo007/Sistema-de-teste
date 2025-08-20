@@ -33,7 +33,7 @@
       padding: 12px 18px;
       border-radius: 6px;
       font-size: 16px;
-      margin-top: 10px;
+      margin-top: 20px;
       cursor: pointer;
       outline: none;
       transition: background 0.3s;
@@ -71,13 +71,17 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
         <path d="M12 3l9 9h-3v9h-12v-9h-3l9-9z"/>
       </svg>
-      <span>Dashboard</span>
-      <span>Pedidos</span>
+      <span>Dashboard</span>  
     </button>
 
     <button class="btn" onclick="abrirPagina('pedidos')">
       📦 Pedidos
     </button>
+
+    <!-- Botão sair -->
+  <button class="btn" style="margin-top:auto; background:#dc3545;" onclick="sair()">
+    🔒 Sair
+  </button>
   </div>
 
   <!-- Área principal -->
@@ -87,20 +91,23 @@
   </div>
 
   <script>
-    function abrirPagina(pagina) {
-      const conteudo = document.getElementById("conteudo");
+function abrirPagina(pagina) {
+  const conteudo = document.getElementById("conteudo");
 
-      if (pagina === "dashboard") {
-        conteudo.innerHTML = `
-          <iframe src="dashboard.html"></iframe>
-        `;
-      }
+  if (pagina === "dashboard") {
+    conteudo.innerHTML = `<iframe src="dashboard.html"></iframe>`;
+  }
 
-      if (pagina === "pedidos") {
-        conteudo.innerHTML = `
-         <iframe src="meus-pedidos.html"></iframe>`;
-      }
-    }
-  </script>
+  if (pagina === "pedidos") {
+    conteudo.innerHTML = `<iframe src="meus-pedidos.html"></iframe>`;
+  }
+}
+
+// Função de logout
+function sair() {
+  // Redireciona para a tela de login
+  window.location.href = "login.html";
+}
+</script>
 </body>
 </html>
