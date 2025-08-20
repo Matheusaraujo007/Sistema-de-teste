@@ -82,13 +82,14 @@ form.addEventListener('submit',(e)=>{
   e.preventDefault();
   const username=document.getElementById('username').value;
   const password=document.getElementById('password').value;
-  if(username==='admin' && password==='1234'){
-    message.style.display='none';
-    // Redirecionar para o painel do sistema
-    window.location.href = 'painel.html'; // <-- coloque o nome do arquivo do seu painel
-  }else{
-    message.style.display='block';
-  }
+  if(username === 'admin' && password === '1234'){
+    message.style.display = 'none';
+    // Marca que o usuário está logado
+    localStorage.setItem('isLoggedIn', 'true');
+    window.location.href = 'painel.html';
+}else{
+    message.style.display = 'block';
+}
 });
 </script>
 </body>
