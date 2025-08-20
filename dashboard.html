@@ -20,6 +20,7 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 .assinatura { position: absolute; top: 10px; left: 10px; font-size: 12px; color: #555; }
 .status-amarelo { background: #fff3cd; color: #856404; font-weight: bold; }
 .status-azul { background: #cce5ff; color: #004085; font-weight: bold; }
+.status-cinza { background: #e2e3e5; color: #383d41; font-weight: bold; }
 .status-lilas { background: #e2d6f3; color: #4a148c; font-weight: bold; }
 .status-verde { background: #d4edda; color: #155724; font-weight: bold; }
 .status-vermelho { background: #f8d7da; color: #721c24; font-weight: bold; }
@@ -132,6 +133,7 @@ function renderizarTabela(pedidos) {
         let statusClass="";
         if(pedido.status==="Aguardando Retorno") statusClass="status-amarelo";
         if(pedido.status==="Arte Aprovada") statusClass="status-azul";
+        if(pedido.status==="Arte não iniciada") statusClass="status-cinza"; // ✅ Novo
         if(pedido.status==="Produzindo") statusClass="status-lilas";
         if(pedido.status==="Pedido Finalizado") statusClass="status-verde";
         if(pedido.status==="Cancelado") statusClass="status-vermelho";
@@ -151,6 +153,7 @@ function renderizarTabela(pedidos) {
             <td><select class="${statusClass}" onchange="atualizarStatus(${pedido.id},this.value,${pedido.valor_recebido||0},'${pedido.vendedor}','${pedido.telefone_cliente}')">
                 <option value="Aguardando Retorno" ${pedido.status==="Aguardando Retorno"?"selected":""}>Aguardando Retorno</option>
                 <option value="Arte Aprovada" ${pedido.status==="Arte Aprovada"?"selected":""}>Arte Aprovada</option>
+                <option value="Arte não iniciada" ${pedido.status==="Arte não iniciada"?"selected":""}>Arte não iniciada</option> <!-- ✅ Aqui -->
                 <option value="Produzindo" ${pedido.status==="Produzindo"?"selected":""}>Produzindo</option>
                 <option value="Pedido Finalizado" ${pedido.status==="Pedido Finalizado"?"selected":""}>Pedido Finalizado</option>
                 <option value="Cancelado" ${pedido.status==="Cancelado"?"selected":""}>Cancelado</option>
@@ -253,24 +256,23 @@ window.salvarEdicao = async function(){
         quantidade: Number(div.querySelector("input[type=number]:nth-child(2)").value),
         valorUnit: Number(div.querySelector("input[type=number]:nth-child(3)").value)
     }));
-
     const id = window.pedidoAtualEditar.id;
 
-    // Calcula valor total do pedido
-    const valorTotal = novosItens.reduce((acc,item)=>acc + item.quantidade * item.valorUnit, 0);
-
-    // Atualiza no backend enviando também o valor_total
+    // Atualiza no backend
     await fetch("/api/pedidos",{
         method:"PUT",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({id, itens: novosItens, valor_total: valorTotal})
+        body: JSON.stringify({id,itens:novosItens})
     });
 
     // Atualiza a tabela localmente
     const pedido = window.todosPedidos.find(p=>p.id===id);
     if(pedido){
         pedido.itens = novosItens;
-        pedido.valor_total = valorTotal;
+
+        // Calcula valor total
+        let valorTotalPedido = novosItens.reduce((acc,item)=>acc + item.quantidade * item.valorUnit, 0);
+        pedido.valor_total = valorTotalPedido;
 
         const tr = Array.from(document.querySelectorAll("#tabelaPedidos tbody tr"))
                         .find(r => Number(r.children[6].textContent.replace(/[^0-9.,]/g,'')) || 0 === pedido.valor_total);
@@ -288,11 +290,11 @@ window.salvarEdicao = async function(){
             tr.children[3].innerHTML = produtosHTML;
             tr.children[4].innerHTML = quantidadesHTML;
             tr.children[5].innerHTML = valoresUnitHTML;
-            tr.children[6].textContent = `R$ ${valorTotal.toFixed(2)}`;
+            tr.children[6].textContent = `R$ ${valorTotalPedido.toFixed(2)}`;
 
-            // Atualiza saldo automaticamente
+            // Atualiza saldo
             const valorRecebido = Number(tr.children[7].querySelector("input").value || 0);
-            tr.children[8].textContent = `R$ ${(valorTotal - valorRecebido).toFixed(2)}`;
+            tr.children[8].textContent = `R$ ${(valorTotalPedido - valorRecebido).toFixed(2)}`;
         }
     }
 
