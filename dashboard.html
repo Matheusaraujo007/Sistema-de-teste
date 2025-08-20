@@ -50,7 +50,9 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
   <input type="text" id="busca" placeholder="🔍 Buscar por cliente, produto ou telefone..." onkeyup="aplicarFiltros()">
 </div>
 
-<div class="filtros">
+<!-- 🔹 Filtros por Produto -->
+<div class="filtros" id="filtrosProdutos">
+  <h3>Filtrar por Produto</h3>
   <button onclick="filtrarProdutos('Todos')" class="ativo">Todos</button>
   <button onclick="filtrarProdutos('Acrílico')">Acrílico</button>
   <button onclick="filtrarProdutos('Placa')">Placa</button>
@@ -61,6 +63,18 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
   <button onclick="filtrarProdutos('Boné')">Boné</button>
   <button onclick="filtrarProdutos('Blusa')">Blusa</button>
   <button onclick="filtrarProdutos('Adesivos')">Adesivos</button>
+</div>
+
+<!-- 🔹 Filtros por Status -->
+<div class="filtros" id="filtrosStatus">
+  <h3>Filtrar por Status</h3>
+  <button onclick="filtrarStatus('Todos')" class="ativo">Todos</button>
+  <button onclick="filtrarStatus('Aguardando Retorno')">Aguardando Retorno</button>
+  <button onclick="filtrarStatus('Arte não iniciada')">Arte não iniciada</button>
+  <button onclick="filtrarStatus('Arte Aprovada')">Arte Aprovada</button>
+  <button onclick="filtrarStatus('Produzindo')">Produzindo</button>
+  <button onclick="filtrarStatus('Pedido Finalizado')">Pedido Finalizado</button>
+  <button onclick="filtrarStatus('Cancelado')">Cancelado</button>
 </div>
 
 <table id="tabelaPedidos">
@@ -98,6 +112,7 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 <script>
 window.todosPedidos = [];
 window.filtroProduto = "Todos";
+window.filtroStatus = "Todos";
 window.pedidoAtualEditar = null;
 
 window.carregarPedidos = async function() {
@@ -133,7 +148,7 @@ function renderizarTabela(pedidos) {
         let statusClass="";
         if(pedido.status==="Aguardando Retorno") statusClass="status-amarelo";
         if(pedido.status==="Arte Aprovada") statusClass="status-azul";
-        if(pedido.status==="Arte não iniciada") statusClass="status-cinza"; // ✅ Novo
+        if(pedido.status==="Arte não iniciada") statusClass="status-cinza";
         if(pedido.status==="Produzindo") statusClass="status-lilas";
         if(pedido.status==="Pedido Finalizado") statusClass="status-verde";
         if(pedido.status==="Cancelado") statusClass="status-vermelho";
@@ -153,7 +168,7 @@ function renderizarTabela(pedidos) {
             <td><select class="${statusClass}" onchange="atualizarStatus(${pedido.id},this.value,${pedido.valor_recebido||0},'${pedido.vendedor}','${pedido.telefone_cliente}')">
                 <option value="Aguardando Retorno" ${pedido.status==="Aguardando Retorno"?"selected":""}>Aguardando Retorno</option>
                 <option value="Arte Aprovada" ${pedido.status==="Arte Aprovada"?"selected":""}>Arte Aprovada</option>
-                <option value="Arte não iniciada" ${pedido.status==="Arte não iniciada"?"selected":""}>Arte não iniciada</option> <!-- ✅ Aqui -->
+                <option value="Arte não iniciada" ${pedido.status==="Arte não iniciada"?"selected":""}>Arte não iniciada</option>
                 <option value="Produzindo" ${pedido.status==="Produzindo"?"selected":""}>Produzindo</option>
                 <option value="Pedido Finalizado" ${pedido.status==="Pedido Finalizado"?"selected":""}>Pedido Finalizado</option>
                 <option value="Cancelado" ${pedido.status==="Cancelado"?"selected":""}>Cancelado</option>
@@ -175,14 +190,28 @@ window.aplicarFiltros = function(){
         if(Array.isArray(p.itens)) texto+=p.itens.map(i=>i.produto).join(" ");
         return texto.toLowerCase().includes(termo);
     });
-    if(window.filtroProduto!=="Todos") filtrados=filtrados.filter(p=>p.itens.some(i=>i.produto.toLowerCase().includes(window.filtroProduto.toLowerCase())));
+
+    if(window.filtroProduto!=="Todos") 
+        filtrados=filtrados.filter(p=>p.itens.some(i=>i.produto.toLowerCase().includes(window.filtroProduto.toLowerCase())));
+
+    if(window.filtroStatus!=="Todos")
+        filtrados=filtrados.filter(p=>p.status===window.filtroStatus);
+
     renderizarTabela(filtrados);
 }
 
 window.filtrarProdutos = function(produto){
     window.filtroProduto = produto;
-    document.querySelectorAll(".filtros button").forEach(b=>b.classList.remove("ativo"));
-    const btnAtivo = Array.from(document.querySelectorAll(".filtros button")).find(b=>b.textContent===produto);
+    document.querySelectorAll("#filtrosProdutos button").forEach(b=>b.classList.remove("ativo"));
+    const btnAtivo = Array.from(document.querySelectorAll("#filtrosProdutos button")).find(b=>b.textContent===produto);
+    if(btnAtivo) btnAtivo.classList.add("ativo");
+    aplicarFiltros();
+}
+
+window.filtrarStatus = function(status){
+    window.filtroStatus = status;
+    document.querySelectorAll("#filtrosStatus button").forEach(b=>b.classList.remove("ativo"));
+    const btnAtivo = Array.from(document.querySelectorAll("#filtrosStatus button")).find(b=>b.textContent===status);
     if(btnAtivo) btnAtivo.classList.add("ativo");
     aplicarFiltros();
 }
@@ -258,47 +287,21 @@ window.salvarEdicao = async function(){
     }));
     const id = window.pedidoAtualEditar.id;
 
-    // Atualiza no backend
     await fetch("/api/pedidos",{
         method:"PUT",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({id,itens:novosItens})
     });
 
-    // Atualiza a tabela localmente
     const pedido = window.todosPedidos.find(p=>p.id===id);
     if(pedido){
         pedido.itens = novosItens;
-
-        // Calcula valor total
         let valorTotalPedido = novosItens.reduce((acc,item)=>acc + item.quantidade * item.valorUnit, 0);
         pedido.valor_total = valorTotalPedido;
-
-        const tr = Array.from(document.querySelectorAll("#tabelaPedidos tbody tr"))
-                        .find(r => Number(r.children[6].textContent.replace(/[^0-9.,]/g,'')) || 0 === pedido.valor_total);
-
-        if(tr){
-            // Atualiza coluna Produtos, Quantidade, Valor Unitário e Valor Total
-            let produtosHTML = "<ul>", quantidadesHTML = "<ul>", valoresUnitHTML = "<ul>";
-            novosItens.forEach(item=>{
-                produtosHTML += `<li>${item.produto}</li>`;
-                quantidadesHTML += `<li>${item.quantidade}</li>`;
-                valoresUnitHTML += `<li>R$ ${item.valorUnit.toFixed(2)}</li>`;
-            });
-            produtosHTML+="</ul>"; quantidadesHTML+="</ul>"; valoresUnitHTML+="</ul>";
-
-            tr.children[3].innerHTML = produtosHTML;
-            tr.children[4].innerHTML = quantidadesHTML;
-            tr.children[5].innerHTML = valoresUnitHTML;
-            tr.children[6].textContent = `R$ ${valorTotalPedido.toFixed(2)}`;
-
-            // Atualiza saldo
-            const valorRecebido = Number(tr.children[7].querySelector("input").value || 0);
-            tr.children[8].textContent = `R$ ${(valorTotalPedido - valorRecebido).toFixed(2)}`;
-        }
     }
 
     fecharModal();
+    carregarPedidos();
 }
 
 window.fecharModal=function(){document.getElementById("modalEditar").style.display="none";}
