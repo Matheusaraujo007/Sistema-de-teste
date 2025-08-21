@@ -195,6 +195,7 @@ document.getElementById("pedidoForm").addEventListener("submit", async function(
         nomeCliente: document.getElementById("nomeCliente").value,
         telefoneCliente: document.getElementById("telefoneCliente").value,
         itens,
+        anotacoes: document.getElementById("anotacoes").value,
         dataPedido: formatDateISO(hoje),
         dataEntrega: formatDateISO(entrega),
         valorTotal: itens.reduce((acc,i)=>acc+i.total,0),
