@@ -101,7 +101,6 @@ h1 {
 
 <div class="dev-credit">Desenvolvido por <strong>MTScomputadores</strong></div>
 
-<!-- Botão Voltar no canto superior esquerdo -->
 <a href="index.html" class="voltar-topo">⬅ Voltar</a>
 
 <h1>📦 Meus Pedidos</h1>
@@ -129,7 +128,7 @@ async function carregarPedidos() {
             return;
         }
 
-        pedidos.sort((a, b) => new Date(b.data_pedido || b.dataPedido) - new Date(a.data_pedido || a.dataPedido));
+        pedidos.sort((a, b) => new Date(b.dataPedido || b.data_pedido) - new Date(a.dataPedido || a.data_pedido));
 
         lista.innerHTML = "";
         pedidos.forEach(p => {
@@ -144,10 +143,11 @@ async function carregarPedidos() {
 
             let produtosHTML = "<ul>";
             if (p.itens) p.itens.forEach(i => {
-                let qtd = parseFloat(i.quantidade) || 0;
-                let unit = parseFloat(i.valorUnit) || 0;
-                let totalItem = qtd * unit;
-                produtosHTML += `<li>${i.produto} - ${qtd} un. (${formatarMoeda(unit)}) - Total: ${formatarMoeda(totalItem)}</li>`;
+                const qtd = parseFloat(i.quantidade) || 0;
+                const unit = parseFloat(i.valorUnit) || 0;
+                const totalItem = qtd * unit;
+                const anotacoes = i.anotacoes || "-";
+                produtosHTML += `<li>${i.produto} - ${qtd} un. (${formatarMoeda(unit)}) - Total: ${formatarMoeda(totalItem)} <br><small>Observações: ${anotacoes}</small></li>`;
             });
             produtosHTML += "</ul>";
 
@@ -157,14 +157,14 @@ async function carregarPedidos() {
                     <span class="status ${statusClasse}">${p.status || "Aguardando Retorno"}</span>
                 </div>
                 <div class="pedido-info">
-                    <p><b>Cliente:</b> ${p.nome_cliente || p.nomeCliente}</p>
-                    <p><b>Telefone:</b> ${p.telefone_cliente || p.telefoneCliente}</p>
+                    <p><b>Cliente:</b> ${p.nomeCliente || p.nome_cliente}</p>
+                    <p><b>Telefone:</b> ${p.telefoneCliente || p.telefone_cliente}</p>
                     <p><b>Produtos:</b> ${produtosHTML}</p>
-                    <p><b>Valor Total:</b> ${formatarMoeda(parseFloat(p.valor_total || p.valorTotal))}</p>
-                    <p><b>Valor Recebido:</b> ${formatarMoeda(parseFloat(p.valor_recebido || p.valorRecebido))}</p>
-                    <p><b>Data Pedido:</b> ${formatarData(p.data_pedido || p.dataPedido)}</p>
-                    <p><b>Data Entrega:</b> ${formatarData(p.data_entrega || p.dataEntrega)}</p>
-                    <p><b>Anotações:</b> ${p.anotacoes || p.observacoes || "-"}</p>
+                    <p><b>Valor Total:</b> ${formatarMoeda(parseFloat(p.valorTotal || p.valor_total))}</p>
+                    <p><b>Valor Recebido:</b> ${formatarMoeda(parseFloat(p.valorRecebido || p.valor_recebido))}</p>
+                    <p><b>Data Pedido:</b> ${formatarData(p.dataPedido || p.data_pedido)}</p>
+                    <p><b>Data Entrega:</b> ${formatarData(p.dataEntrega || p.data_entrega)}</p>
+                    <p><b>Anotações:</b> ${p.anotacoes || "-"}</p>
                 </div>
             `;
             lista.appendChild(card);
@@ -178,7 +178,6 @@ async function carregarPedidos() {
 }
 
 carregarPedidos();
-// 🔄 Atualização automática a cada 5s
 setInterval(carregarPedidos, 5000);
 </script>
 </body>
