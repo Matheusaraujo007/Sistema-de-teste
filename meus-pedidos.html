@@ -62,19 +62,20 @@ h1 {
 .finalizado { background: #d4edda; color: #155724; }
 .cancelado  { background: #f8d7da; color: #721c24; }
 
-.voltar {
-    display: block;
-    text-align: center;
-    margin-top: 20px;
+.voltar-topo {
+    position: fixed;
+    top: 120px;
+    left: 10px;
     background: #2f7fb3;
     color: white;
-    padding: 12px;
+    padding: 8px 15px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: bold;
     transition: background 0.3s;
+    z-index: 1100;
 }
-.voltar:hover {
+.voltar-topo:hover {
     background: #25658d;
 }
 /* Texto no canto superior esquerdo */
@@ -100,9 +101,11 @@ h1 {
 
 <div class="dev-credit">Desenvolvido por <strong>MTScomputadores</strong></div>
 
+<!-- Botão Voltar no canto superior esquerdo -->
+<a href="index.html" class="voltar-topo">⬅ Voltar</a>
+
 <h1>📦 Meus Pedidos</h1>
 <div id="listaPedidos"></div>
-<a href="index.html" class="voltar">⬅ Voltar</a>
 
 <script>
 function formatarData(dataStr) {
