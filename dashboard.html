@@ -150,7 +150,7 @@ function renderizarTabela(pedidos) {
         if(Array.isArray(pedido.itens)) pedido.itens.forEach(item=>{
     const quantidade = item.quantidade || item.qtd || 1; // fallback
     produtosHTML += `<li>${item.produto}</li>`;
-    quantidadeHTML += `<li>${quantidade}</li>`;
+    quantidadesHTML += `<li>${quantidade}</li>`;
     valoresUnitHTML += `<li>R$ ${Number(item.valorUnit).toFixed(2)}</li>`;
     valorTotalPedido += Number(item.valorUnit) * Number(quantidade);
 });
