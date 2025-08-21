@@ -82,7 +82,7 @@ form.addEventListener('submit',(e)=>{
   e.preventDefault();
   const username=document.getElementById('username').value;
   const password=document.getElementById('password').value;
-  if(username === 'admin' && password === ''){
+  if(username === 'admin' && password === '1234'){
     message.style.display = 'none';
     // Marca que o usuário está logado
     sessionStorage.setItem('isLoggedIn', 'true');
