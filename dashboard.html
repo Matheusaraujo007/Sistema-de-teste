@@ -148,11 +148,12 @@ function renderizarTabela(pedidos) {
         let produtosHTML="<ul>", quantidadesHTML="<ul>", valoresUnitHTML="<ul>", valorTotalPedido=0;
 
         if(Array.isArray(pedido.itens)) pedido.itens.forEach(item=>{
-            produtosHTML+=`<li>${item.produto}</li>`;
-            quantidadesHTML+=`<li>${item.quantidade}</li>`;
-            valoresUnitHTML+=`<li>R$ ${Number(item.valorUnit).toFixed(2)}</li>`;
-            valorTotalPedido+=Number(item.valorUnit)*Number(item.quantidade);
-        });
+    const quantidade = item.quantidade || item.qtd || 1; // fallback
+    produtosHTML += `<li>${item.produto}</li>`;
+    quantidadeHTML += `<li>${quantidade}</li>`;
+    valoresUnitHTML += `<li>R$ ${Number(item.valorUnit).toFixed(2)}</li>`;
+    valorTotalPedido += Number(item.valorUnit) * Number(quantidade);
+});
         produtosHTML+="</ul>"; quantidadesHTML+="</ul>"; valoresUnitHTML+="</ul>";
 
         if(!pedido.valor_total) pedido.valor_total=valorTotalPedido;
