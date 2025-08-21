@@ -92,7 +92,7 @@
 
   <script>
     // Verifica se o usuário está logado
-  if(localStorage.getItem('isLoggedIn') !== 'true'){
+  if(sessionStorage.getItem('isLoggedIn') !== 'true'){
       window.location.href = 'login.html'; // redireciona para login
   }
 function abrirPagina(pagina) {
@@ -108,7 +108,7 @@ function abrirPagina(pagina) {
 }
 // Função de logout
 function sair() {
-    localStorage.removeItem('isLoggedIn'); // limpa o login
+    sessionStorage.removeItem('isLoggedIn'); // limpa o login
     window.location.href = "login.html"; // redireciona para login
 }
 </script>
