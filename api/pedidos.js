@@ -18,12 +18,12 @@ export default async function handler(req, res) {
 
     } else if (req.method === 'POST') {
       // Cria um novo pedido, incluindo vendedor e telefone_cliente
-      const { nomeCliente, telefoneCliente, vendedor, itens, valorTotal, valorRecebido, dataPedido, dataEntrega, status } = req.body;
+      const { nomeCliente, telefoneCliente, vendedor, itens, valorTotal, valorRecebido, dataPedido, dataEntrega, status, anotacoes } = req.body;
 
       await client.query(
         `INSERT INTO pedidos 
-          (vendedor, nome_cliente, telefone_cliente, itens, valor_total, valor_recebido, data_pedido, data_entrega, status)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          (vendedor, nome_cliente, telefone_cliente, itens, valor_total, valor_recebido, data_pedido, data_entrega, status, anotacoes)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
         [
           vendedor,
           nomeCliente,
@@ -33,7 +33,9 @@ export default async function handler(req, res) {
           valorRecebido || 0,
           dataPedido,
           dataEntrega,
-          status || 'Aguardando Retorno'
+          status || 'Aguardando Retorno',
+          anotacoes || ""
+       
         ]
       );
 
@@ -41,7 +43,7 @@ export default async function handler(req, res) {
 
     } else if (req.method === 'PUT') {
       // Atualiza pedido (pode ser valor recebido, status, vendedor, telefone_cliente OU itens)
-      const { id, valorRecebido, status, vendedor, telefoneCliente, itens, valor_total } = req.body;
+      const { id, valorRecebido, status, vendedor, telefoneCliente, itens, valor_total, anotacoes } = req.body;
 
       if (itens) {
         // Atualiza os itens e valor_total se fornecido
@@ -50,15 +52,15 @@ export default async function handler(req, res) {
            SET itens = $1,
                valor_total = $2
            WHERE id = $3`,
-          [JSON.stringify(itens), valor_total, id]
+          [JSON.stringify(itens), valor_total, anotacoes || "", id]
         );
       } else {
         // Atualiza dados básicos
         await client.query(
           `UPDATE pedidos 
-           SET valor_recebido = $1, status = $2, vendedor = $3, telefone_cliente = $4
+           SET valor_recebido = $1, status = $2, vendedor = $3, telefone_cliente = $4, anotacoes = $5
            WHERE id = $5`,
-          [valorRecebido, status, vendedor, telefoneCliente, id]
+          [valorRecebido, status, vendedor, telefoneCliente, anotacoes || "", id]
         );
       }
 
