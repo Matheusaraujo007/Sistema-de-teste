@@ -68,6 +68,12 @@ button { padding:10px 16px; border:none; border-radius:8px; font-size:14px; font
                 <label>Produto</label>
                 <input type="text" placeholder="Digite o produto" required>
             </div>
+
+            <div class="form-group">
+            <label>Anotações</label>
+            <textarea placeholder="Observações sobre o produto (ex: cor, tamanho, etc)" rows="2"></textarea>
+        </div>
+
             <div class="form-group">
                 <label>Quantidade</label>
                 <input type="number" placeholder="Ex: 10" required>
@@ -142,6 +148,12 @@ function criarItem(){
             <label>Produto</label>
             <input type="text" placeholder="Digite o produto" required>
         </div>
+
+        <div class="form-group">
+            <label>Anotações</label>
+            <textarea placeholder="Observações sobre o produto (ex: cor, tamanho, etc)" rows="2"></textarea>
+        </div>
+
         <div class="form-group">
             <label>Quantidade</label>
             <input type="number" placeholder="Ex: 10" required>
@@ -173,6 +185,7 @@ document.getElementById("pedidoForm").addEventListener("submit", async function(
     const itens=[];
     document.querySelectorAll("#itensContainer .item-block").forEach(block=>{
         const produto = block.querySelector("input[placeholder='Digite o produto']").value;
+        const anotacoes = block.querySelector("textarea").value;
         const quantidade = parseInt(block.querySelector("input[placeholder^='Ex:']").value)||0;
         const valorUnit = parseFloat(block.querySelector("input[step]").value)||0;
         itens.push({produto,quantidade,valorUnit,total:quantidade*valorUnit});

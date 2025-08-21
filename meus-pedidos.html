@@ -143,14 +143,13 @@ async function carregarPedidos() {
             else if (s.includes("cancelado")) statusClasse = "cancelado";
 
             let produtosHTML = "<ul>";
-if (p.itens) p.itens.forEach(i => {
-    let qtd = parseFloat(i.quantidade) || 0;
-    let unit = parseFloat(i.valorUnit) || 0;
-    let totalItem = qtd * unit;
-
-    produtosHTML += `<li>${i.produto} - ${qtd} un. (${formatarMoeda(unit)}) - Total: ${formatarMoeda(totalItem)}</li>`;
-});
-produtosHTML += "</ul>";
+            if (p.itens) p.itens.forEach(i => {
+                let qtd = parseFloat(i.quantidade) || 0;
+                let unit = parseFloat(i.valorUnit) || 0;
+                let totalItem = qtd * unit;
+                produtosHTML += `<li>${i.produto} - ${qtd} un. (${formatarMoeda(unit)}) - Total: ${formatarMoeda(totalItem)}</li>`;
+            });
+            produtosHTML += "</ul>";
 
             card.innerHTML = `
                 <div class="pedido-header">
@@ -165,6 +164,7 @@ produtosHTML += "</ul>";
                     <p><b>Valor Recebido:</b> ${formatarMoeda(parseFloat(p.valor_recebido || p.valorRecebido))}</p>
                     <p><b>Data Pedido:</b> ${formatarData(p.data_pedido || p.dataPedido)}</p>
                     <p><b>Data Entrega:</b> ${formatarData(p.data_entrega || p.dataEntrega)}</p>
+                    <p><b>Anotações:</b> ${p.anotacoes || p.observacoes || "-"}</p>
                 </div>
             `;
             lista.appendChild(card);
