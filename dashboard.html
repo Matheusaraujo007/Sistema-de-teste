@@ -92,6 +92,7 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
             <th>Data Pedido</th>
             <th>Data Entrega</th>
             <th>Status</th>
+            <th>Anotações</th> <!-- NOVO CAMPO -->
             <th>Ação</th>
         </tr>
     </thead>
@@ -110,10 +111,9 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 </div>
 
 <script>
-        // Verifica se o usuário está logado
-  if(sessionStorage.getItem('isLoggedIn') !== 'true'){
-      window.location.href = 'login.html'; // redireciona para login
-  }
+if(sessionStorage.getItem('isLoggedIn') !== 'true'){
+    window.location.href = 'login.html';
+}
 window.todosPedidos = [];
 window.filtroProduto = "Todos";
 window.filtroStatus = "Todos";
@@ -177,6 +177,7 @@ function renderizarTabela(pedidos) {
                 <option value="Pedido Finalizado" ${pedido.status==="Pedido Finalizado"?"selected":""}>Pedido Finalizado</option>
                 <option value="Cancelado" ${pedido.status==="Cancelado"?"selected":""}>Cancelado</option>
             </select></td>
+            <td>${pedido.anotacoes || pedido.observacoes || "-"}</td> <!-- NOVO CAMPO -->
             <td>
                 <button onclick="editarPedido(${pedido.id})">✏️ Editar</button>
                 <button onclick="removerPedido(${pedido.id})">🗑️ Remover</button>
@@ -267,7 +268,6 @@ function criarLinhaProduto(produto="", quantidade=1, valorUnit=0, index=null){
 }
 
 window.adicionarLinhaProduto = function(){ criarLinhaProduto(); }
-
 window.removerLinhaProduto = function(btn){ btn.parentElement.remove(); atualizarTotalModal(); }
 
 function atualizarTotalModal(){
@@ -309,13 +309,11 @@ window.salvarEdicao = async function(){
 }
 
 window.fecharModal=function(){document.getElementById("modalEditar").style.display="none";}
-
-// Inicializa
 carregarPedidos();
 
 function sair() {
-    sessionStorage.removeItem('isLoggedIn'); // limpa o login
-    window.location.href = "login.html"; // redireciona para login
+    sessionStorage.removeItem('isLoggedIn');
+    window.location.href = "login.html";
 }
 </script>
 
