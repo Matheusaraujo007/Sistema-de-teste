@@ -185,22 +185,22 @@ document.getElementById("pedidoForm").addEventListener("submit", async function(
     const itens=[];
     document.querySelectorAll("#itensContainer .item-block").forEach(block=>{
         const produto = block.querySelector("input[placeholder='Digite o produto']").value;
-        const anotacoes = block.querySelector("textarea").value;
+        const anotacoes = block.querySelector("textarea").value; // ✅ capturando
         const quantidade = parseInt(block.querySelector("input[placeholder^='Ex:']").value)||0;
         const valorUnit = parseFloat(block.querySelector("input[step]").value)||0;
-        itens.push({produto,quantidade,valorUnit,total:quantidade*valorUnit});
+        itens.push({produto,anotacoes,valorUnit,total:quantidade*valorUnit});
     });
     const pedido = {
         vendedor: document.getElementById("seuNome").value,
         nomeCliente: document.getElementById("nomeCliente").value,
         telefoneCliente: document.getElementById("telefoneCliente").value,
         itens,
-        anotacoes: document.getElementById("anotacoes").value,
         dataPedido: formatDateISO(hoje),
         dataEntrega: formatDateISO(entrega),
         valorTotal: itens.reduce((acc,i)=>acc+i.total,0),
         valorRecebido: parseFloat(document.getElementById("valorRecebido").value)||0,
         status:"Aguardando Retorno"
+        
     };
 
     try{
