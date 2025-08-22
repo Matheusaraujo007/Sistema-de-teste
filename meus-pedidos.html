@@ -164,6 +164,7 @@ let anotacoesHTML = p.anotacoes ? `<p><b>Anotações:</b> ${p.anotacoes}</p>` : 
                     <p><b>Cliente:</b> ${p.nome_cliente || p.nomeCliente}</p>
                     <p><b>Telefone:</b> ${p.telefone_cliente || p.telefoneCliente}</p>
                     <p><b>Produtos:</b> ${produtosHTML}</p>
+                    ${anotacoesHTML}
                     <p><b>Valor Total:</b> ${formatarMoeda(parseFloat(p.valor_total || p.valorTotal))}</p>
                     <p><b>Valor Recebido:</b> ${formatarMoeda(parseFloat(p.valor_recebido || p.valorRecebido))}</p>
                     <p><b>Data Pedido:</b> ${formatarData(p.data_pedido || p.dataPedido)}</p>
