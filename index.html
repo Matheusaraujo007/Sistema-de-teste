@@ -82,6 +82,11 @@ button { padding:10px 16px; border:none; border-radius:8px; font-size:14px; font
 
     <button type="button" class="btn-success" id="btnAddItem">+ Adicionar Item</button>
 
+    <div class="form-group">
+    <label for="anotacoes">Anotações</label>
+    <textarea id="anotacoes" placeholder="Digite suas observações" rows="4" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px; font-size:14px;"></textarea>
+</div>
+
     <div class="dates form-group">
         <div>
             <label for="dataPedido">Dt. Pedido</label>
@@ -182,6 +187,7 @@ document.getElementById("pedidoForm").addEventListener("submit", async function(
         nomeCliente: document.getElementById("nomeCliente").value,
         telefoneCliente: document.getElementById("telefoneCliente").value,
         itens,
+        anotacoes: document.getElementById("anotacoes").value, // <- aqui
         dataPedido: formatDateISO(hoje),
         dataEntrega: formatDateISO(entrega),
         valorTotal: itens.reduce((acc,i)=>acc+i.total,0),

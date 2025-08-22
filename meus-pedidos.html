@@ -152,6 +152,9 @@ if (p.itens) p.itens.forEach(i => {
 });
 produtosHTML += "</ul>";
 
+    // Adicione anotacoes abaixo de produtos
+let anotacoesHTML = p.anotacoes ? `<p><b>Anotações:</b> ${p.anotacoes}</p>` : '';
+
             card.innerHTML = `
                 <div class="pedido-header">
                     <span>📋 Pedido de ${p.vendedor}</span>

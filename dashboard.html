@@ -92,6 +92,7 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
             <th>Data Pedido</th>
             <th>Data Entrega</th>
             <th>Status</th>
+            <th>Anotações</th>
             <th>Ação</th>
         </tr>
     </thead>
@@ -102,6 +103,8 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
   <div>
     <h3>Editar Pedido</h3>
     <div id="produtosContainer"></div>
+    <label for="anotacoes">Anotações:</label>
+<textarea id="anotacoes" rows="3" style="width:100%; padding:5px;"></textarea>
     <button onclick="adicionarLinhaProduto()">➕ Adicionar Produto</button>
     <div class="totalPedido" id="totalPedido">Total: R$ 0.00</div>
     <button onclick="salvarEdicao()">💾 Salvar</button>
@@ -112,7 +115,7 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 <script>
         // Verifica se o usuário está logado
   if(sessionStorage.getItem('isLoggedIn') !== 'true'){
-      window.location.href = 'login.html'; // redireciona para login
+      window.sessionStorage.href = 'login.html'; // redireciona para login
   }
 window.todosPedidos = [];
 window.filtroProduto = "Todos";
@@ -177,6 +180,7 @@ function renderizarTabela(pedidos) {
                 <option value="Pedido Finalizado" ${pedido.status==="Pedido Finalizado"?"selected":""}>Pedido Finalizado</option>
                 <option value="Cancelado" ${pedido.status==="Cancelado"?"selected":""}>Cancelado</option>
             </select></td>
+            <td>${pedido.anotacoes || ""}</td>
             <td>
                 <button onclick="editarPedido(${pedido.id})">✏️ Editar</button>
                 <button onclick="removerPedido(${pedido.id})">🗑️ Remover</button>
@@ -247,6 +251,7 @@ window.editarPedido = function(id){
     modal.style.display = "flex";
 
     const container = document.getElementById("produtosContainer");
+    document.getElementById("anotacoes").value = window.pedidoAtualEditar.anotacoes || "";
     container.innerHTML = "";
     window.pedidoAtualEditar.itens.forEach((item,index)=>{criarLinhaProduto(item.produto,item.quantidade,item.valorUnit,index)});
     atualizarTotalModal();
@@ -286,22 +291,24 @@ window.salvarEdicao = async function(){
     const container = document.getElementById("produtosContainer");
     const novosItens = Array.from(container.children).map(div=>({
         produto: div.querySelector("input[type=text]").value,
-        quantidade: Number(div.querySelector("input[type=number]:nth-child(2)").value),
-        valorUnit: Number(div.querySelector("input[type=number]:nth-child(3)").value)
+        quantidade: Number(div.querySelectorAll("input[type=number]")[0].value),
+        valorUnit: Number(div.querySelectorAll("input[type=number]")[1].value)
     }));
-    const id = window.pedidoAtualEditar.id;
 
-    await fetch("/api/pedidos",{
-        method:"PUT",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({id,itens:novosItens})
+    const id = window.pedidoAtualEditar.id;
+    const anotacoes = document.getElementById("anotacoes").value;
+
+    await fetch("/api/pedidos", {
+        method: "PUT",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ id, itens: novosItens, anotacoes })
     });
 
     const pedido = window.todosPedidos.find(p=>p.id===id);
     if(pedido){
         pedido.itens = novosItens;
-        let valorTotalPedido = novosItens.reduce((acc,item)=>acc + item.quantidade * item.valorUnit, 0);
-        pedido.valor_total = valorTotalPedido;
+        pedido.valor_total = novosItens.reduce((acc,item)=>acc + item.quantidade * item.valorUnit, 0);
+        pedido.anotacoes = anotacoes; // <-- ATUALIZA LOCALMENTE
     }
 
     fecharModal();
@@ -315,7 +322,7 @@ carregarPedidos();
 
 function sair() {
     sessionStorage.removeItem('isLoggedIn'); // limpa o login
-    window.location.href = "login.html"; // redireciona para login
+    window.sessionStorage.href = "login.html"; // redireciona para login
 }
 </script>
 
