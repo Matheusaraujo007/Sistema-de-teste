@@ -184,8 +184,8 @@ function renderizarTabela(pedidos) {
                 <option value="Arte não iniciada" ${pedido.status==="Arte não iniciada"?"selected":""}>Arte não iniciada</option>
                 <option value="Produzindo" ${pedido.status==="Produzindo"?"selected":""}>Produzindo</option>
                 <option value="Pedido Finalizado/Falta Pagamento" ${pedido.status==="Pedido Finalizado/Falta Pagamento"?"selected":""}>Pedido Finalizado/Falta Pagamento</option>
-                <option value="Pedido Finalizado" ${pedido.status==="Pedido Finalizado"?"selected":""}>Pedido Finalizado</option>
                 <option value="Pronto Para Envio" ${pedido.status==="Pronto Para Envio"?"selected":""}>Pronto Para Envio</option>
+                <option value="Venda Concluida e Finalizada" ${pedido.status==="Venda Concluida e Finalizada"?"selected":""}>Venda Concluida e Finalizada</option>
                 <option value="Cancelado" ${pedido.status==="Cancelado"?"selected":""}>Cancelado</option>
             </select></td>
             <td>${pedido.anotacoes || ""}</td>
