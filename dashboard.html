@@ -115,7 +115,7 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 <script>
         // Verifica se o usuário está logado
   if(sessionStorage.getItem('isLoggedIn') !== 'true'){
-      window.sessionStorage.href = 'login.html'; // redireciona para login
+      window.location.href = 'login.html'; // redireciona para login
   }
 window.todosPedidos = [];
 window.filtroProduto = "Todos";
