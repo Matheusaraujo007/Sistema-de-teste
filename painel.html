@@ -78,6 +78,10 @@
       📦 Pedidos
     </button>
 
+    <button class="btn" onclick="abrirUsuarios()" style="margin-top:10px; background:#28a745;">
+    👤 Gerenciar Usuários
+  </button>
+
     <!-- Botão sair -->
   <button class="btn" style="margin-top:auto; background:#dc3545;" onclick="sair()">
     🔒 Sair
@@ -91,10 +95,6 @@
   </div>
 
   <script>
-    // Verifica se o usuário está logado
-  if(sessionStorage.getItem('isLoggedIn') !== 'true'){
-      window.location.href = 'login.html'; // redireciona para login
-  }
 function abrirPagina(pagina) {
   const conteudo = document.getElementById("conteudo");
 
@@ -104,12 +104,15 @@ function abrirPagina(pagina) {
 
   if (pagina === "pedidos") {
     conteudo.innerHTML = `<iframe src="meus-pedidos.html"></iframe>`;
-  }  
+  }
+
+  
 }
+
 // Função de logout
 function sair() {
-    sessionStorage.removeItem('isLoggedIn'); // limpa o login
-    window.location.href = "login.html"; // redireciona para login
+  // Redireciona para a tela de login
+  window.location.href = "login.html";
 }
 </script>
 </body>
