@@ -107,9 +107,10 @@ function abrirPagina(pagina) {
 
 // Função de logout
 function sair() {
-  // Redireciona para a tela de login
-  window.location.href = "login.html";
-}
+  // Protege o painel: se não estiver logado nesta sessão, redireciona para login
+  if(sessionStorage.getItem('isLoggedIn') !== 'true')
+      window.location.href = 'login.html';
+  }
 </script>
 </body>
 </html>
