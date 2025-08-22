@@ -108,6 +108,10 @@ h1 {
 <div id="listaPedidos"></div>
 
 <script>
+    // Verifica se o usuário está logado
+  if(sessionStorage.getItem('isLoggedIn') !== 'true'){
+      window.location.href = 'login.html'; // redireciona para login
+  }
 function formatarData(dataStr) {
     if (!dataStr) return "-";
     const data = new Date(dataStr);
