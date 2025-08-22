@@ -128,11 +128,23 @@ window.pedidoAtualEditar = null;
 
 window.carregarPedidos = async function() {
     const res = await fetch("/api/pedidos");
-    window.todosPedidos = await res.json();
+    const novos = await res.json();
+
+    // 🔹 preserva as anotações antigas no frontend
+    novos.forEach(novo => {
+        const antigo = window.todosPedidos.find(p => p.id === novo.id);
+        if (antigo) {
+            // se já tinha anotação antes, mantém
+            if (antigo.anotacoes && (!novo.anotacoes || novo.anotacoes === "")) {
+                novo.anotacoes = antigo.anotacoes;
+            }
+        }
+    });
+
+    window.todosPedidos = novos;
     ordenarPedidos();
     aplicarFiltros();
 }
-
 function ordenarPedidos() {
     window.todosPedidos.sort((a, b) => {
         if(a.status==="Venda Concluida e Finalizada" && b.status!=="Venda Concluida e Finalizada") return 1;
