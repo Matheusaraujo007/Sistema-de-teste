@@ -67,6 +67,7 @@
 <body>
   <!-- Sidebar -->
   <div class="sidebar">
+    
     <button class="btn" onclick="abrirPagina('dashboard')">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
         <path d="M12 3l9 9h-3v9h-12v-9h-3l9-9z"/>
@@ -86,15 +87,15 @@
 
   <!-- Área principal -->
   <div class="main" id="conteudo">
-    <h1>Bem-vindo ao sistema</h1>
+    <h1>Bem-vindo ao sistema MPX Arts</h1>
     <p>Escolha uma opção no menu lateral para começar.</p>
   </div>
 
   <script>
-    // Verifica se o usuário está logado
-  if(sessionStorage.getItem('isLoggedIn') !== 'true'){
-      window.location.href = 'login.html'; // redireciona para login
-  }
+      // Protege o painel: se não estiver logado nesta sessão, redireciona para login
+  if(sessionStorage.getItem('isLoggedIn') !== 'true')
+      window.location.href = 'login.html';
+  
 function abrirPagina(pagina) {
   const conteudo = document.getElementById("conteudo");
 
@@ -104,8 +105,11 @@ function abrirPagina(pagina) {
 
   if (pagina === "pedidos") {
     conteudo.innerHTML = `<iframe src="meus-pedidos.html"></iframe>`;
-  }  
+  }
+
+  
 }
+
 // Função de logout
 function sair() {
     sessionStorage.removeItem('isLoggedIn'); // limpa o login
