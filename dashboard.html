@@ -213,16 +213,9 @@ window.aplicarFiltros = function(){
 
 window.filtrarProdutos = function(produto){
     window.filtroProduto = produto;
-
-    // Remove a classe ativo de todos os botões
-    document.querySelectorAll("#filtrosProdutos button").forEach(b => b.classList.remove("ativo"));
-
-    // Encontra o botão correspondente, ignorando maiúsculas/minúsculas
-    const btnAtivo = Array.from(document.querySelectorAll("#filtrosProdutos button"))
-        .find(b => b.textContent.toLowerCase() === produto.toLowerCase());
-
+    document.querySelectorAll("#filtrosProdutos button").forEach(b=>b.classList.remove("ativo"));
+    const btnAtivo = Array.from(document.querySelectorAll("#filtrosProdutos button")).find(b=>b.textContent===produto);
     if(btnAtivo) btnAtivo.classList.add("ativo");
-
     aplicarFiltros();
 }
 
