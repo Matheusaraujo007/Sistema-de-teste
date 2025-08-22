@@ -22,7 +22,7 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 .status-azul { background: #cce5ff; color: #004085; font-weight: bold; }
 .status-cinza { background: #e2e3e5; color: #383d41; font-weight: bold; }
 .status-lilas { background: #e2d6f3; color: #4a148c; font-weight: bold; }
-.status-verde { background: #d4edda; color: #155724; font-weight: bold; }
+.status-amarelo { background: #d4edda; color: #faed01; font-weight: bold; }
 .status-verde { background: #d4edda; color: #155724; font-weight: bold; }
 .status-verde { background: #d4edda; color: #155724; font-weight: bold; }
 .status-vermelho { background: #f8d7da; color: #721c24; font-weight: bold; }
@@ -161,7 +161,7 @@ function renderizarTabela(pedidos) {
         if(pedido.status==="Arte Aprovada") statusClass="status-azul";
         if(pedido.status==="Arte não iniciada") statusClass="status-cinza";
         if(pedido.status==="Produzindo") statusClass="status-lilas";
-        if(pedido.status==="Pedido Finalizado/Falta Pagamento") statusClass="status-verde";
+        if(pedido.status==="Pedido Finalizado/Falta Pagamento") statusClass="status-amarelo";
         if(pedido.status==="Pedido Finalizado") statusClass="status-verde";
         if(pedido.status==="Pronto Para Envio") statusClass="status-verde";
         if(pedido.status==="Cancelado") statusClass="status-vermelho";
