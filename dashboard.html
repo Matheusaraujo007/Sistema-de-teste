@@ -76,8 +76,8 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
   <button onclick="filtrarStatus('Arte Aprovada')">Arte Aprovada</button>
   <button onclick="filtrarStatus('Produzindo')">Produzindo</button>
   <button onclick="filtrarStatus('Pedido Finalizado/Falta Pagamento')">Pedido Finalizado/Falta Pagamento</button>
-  <button onclick="filtrarStatus('Pedido Finalizado')">Pedido Finalizado</button>
   <button onclick="filtrarStatus('Pronto Para Envio')">Pronto Para Envio</button>
+  <button onclick="filtrarStatus('Venda Concluida e Finalizada')">Venda Concluida e Finalizada</button>
   <button onclick="filtrarStatus('Cancelado')">Cancelado</button>
 </div>
 
@@ -135,8 +135,8 @@ window.carregarPedidos = async function() {
 
 function ordenarPedidos() {
     window.todosPedidos.sort((a, b) => {
-        if(a.status==="Pedido Finalizado" && b.status!=="Pedido Finalizado") return 1;
-        if(a.status!=="Pedido Finalizado" && b.status==="Pedido Finalizado") return -1;
+        if(a.status==="Venda Concluida e Finalizada" && b.status!=="Venda Concluida e Finalizada") return 1;
+        if(a.status!=="Venda Concluida e Finalizada" && b.status==="Venda Concluida e Finalizada") return -1;
         return 0;
     });
 }
@@ -162,8 +162,8 @@ function renderizarTabela(pedidos) {
         if(pedido.status==="Arte não iniciada") statusClass="status-cinza";
         if(pedido.status==="Produzindo") statusClass="status-lilas";
         if(pedido.status==="Pedido Finalizado/Falta Pagamento") statusClass="status-amareloclaro";
-        if(pedido.status==="Pedido Finalizado") statusClass="status-verde";
         if(pedido.status==="Pronto Para Envio") statusClass="status-verdeneon";
+        if(pedido.status==="Venda Concluida e Finalizada") statusClass="status-verdeneon";
         if(pedido.status==="Cancelado") statusClass="status-vermelho";
 
         tr.innerHTML=`
