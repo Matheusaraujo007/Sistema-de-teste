@@ -23,6 +23,8 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 .status-cinza { background: #e2e3e5; color: #383d41; font-weight: bold; }
 .status-lilas { background: #e2d6f3; color: #4a148c; font-weight: bold; }
 .status-verde { background: #d4edda; color: #155724; font-weight: bold; }
+.status-verde { background: #d4edda; color: #155724; font-weight: bold; }
+.status-verde { background: #d4edda; color: #155724; font-weight: bold; }
 .status-vermelho { background: #f8d7da; color: #721c24; font-weight: bold; }
 .filtros { text-align: center; margin: 20px 0; }
 .filtros button { margin: 5px; padding: 8px 12px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px; background: #2f7fb3; color: white; }
@@ -73,7 +75,9 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
   <button onclick="filtrarStatus('Arte não iniciada')">Arte não iniciada</button>
   <button onclick="filtrarStatus('Arte Aprovada')">Arte Aprovada</button>
   <button onclick="filtrarStatus('Produzindo')">Produzindo</button>
+  <button onclick="filtrarStatus('Pedido Finalizado/Falta Pagamento')">Pedido Finalizado/Falta Pagamento</button>
   <button onclick="filtrarStatus('Pedido Finalizado')">Pedido Finalizado</button>
+  <button onclick="filtrarStatus('Pronto Para Envio')">Pronto Para Envio</button>
   <button onclick="filtrarStatus('Cancelado')">Cancelado</button>
 </div>
 
@@ -157,7 +161,9 @@ function renderizarTabela(pedidos) {
         if(pedido.status==="Arte Aprovada") statusClass="status-azul";
         if(pedido.status==="Arte não iniciada") statusClass="status-cinza";
         if(pedido.status==="Produzindo") statusClass="status-lilas";
+        if(pedido.status==="Pedido Finalizado/Falta Pagamento") statusClass="status-verde";
         if(pedido.status==="Pedido Finalizado") statusClass="status-verde";
+        if(pedido.status==="Pronto Para Envio") statusClass="status-verde";
         if(pedido.status==="Cancelado") statusClass="status-vermelho";
 
         tr.innerHTML=`
@@ -177,7 +183,9 @@ function renderizarTabela(pedidos) {
                 <option value="Arte Aprovada" ${pedido.status==="Arte Aprovada"?"selected":""}>Arte Aprovada</option>
                 <option value="Arte não iniciada" ${pedido.status==="Arte não iniciada"?"selected":""}>Arte não iniciada</option>
                 <option value="Produzindo" ${pedido.status==="Produzindo"?"selected":""}>Produzindo</option>
+                <option value="Pedido Finalizado/Falta Pagamento" ${pedido.status==="Pedido Finalizado/Falta Pagamento"?"selected":""}>Pedido Finalizado/Falta Pagamento</option>
                 <option value="Pedido Finalizado" ${pedido.status==="Pedido Finalizado"?"selected":""}>Pedido Finalizado</option>
+                <option value="Pronto Para Envio" ${pedido.status==="Pronto Para Envio"?"selected":""}>Pronto Para Envio</option>
                 <option value="Cancelado" ${pedido.status==="Cancelado"?"selected":""}>Cancelado</option>
             </select></td>
             <td>${pedido.anotacoes || ""}</td>
