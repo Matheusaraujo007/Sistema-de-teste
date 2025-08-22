@@ -30,7 +30,6 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 .filtros button { margin: 5px; padding: 8px 12px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px; background: #2f7fb3; color: white; }
 .filtros button:hover { opacity: 0.8; }
 .filtros button.ativo { background: #155d82; }
-
 /* Modal */
 #modalEditar { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
 #modalEditar div { background:white; padding:20px; border-radius:10px; width:90%; max-width:500px; max-height:90%; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
@@ -40,82 +39,81 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 </style>
 </head>
 <body>
-
 <h1>📊 Dashboard de Pedidos</h1>
-
 <div style="text-align:center;">
-  <input type="text" id="busca" placeholder="🔍 Buscar por cliente, produto ou telefone..." onkeyup="aplicarFiltros()">
+<input type="text" id="busca" placeholder="🔍 Buscar por cliente, produto ou telefone..." onkeyup="aplicarFiltros()">
 </div>
 
 <!-- 🔹 Filtros por Produto -->
 <div class="filtros" id="filtrosProdutos">
-  <h3>Filtrar por Produto</h3>
-  <button onclick="filtrarProdutos('Todos')" class="ativo">Todos</button>
-  <button onclick="filtrarProdutos('Acrílico')">Acrílico</button>
-  <button onclick="filtrarProdutos('Placa')">Placa</button>
-  <button onclick="filtrarProdutos('Luminoso')">Luminoso</button>
-  <button onclick="filtrarProdutos('Bandeira')">Bandeira</button>
-  <button onclick="filtrarProdutos('Arte')">Arte</button>
-  <button onclick="filtrarProdutos('Faixa Refletiva')">Faixa Refletiva</button>
-  <button onclick="filtrarProdutos('Boné')">Boné</button>
-  <button onclick="filtrarProdutos('Blusa')">Blusa</button>
-  <button onclick="filtrarProdutos('Adesivos')">Adesivos</button>
+<h3>Filtrar por Produto</h3>
+<button onclick="filtrarProdutos('Todos')" class="ativo">Todos</button>
+<button onclick="filtrarProdutos('Acrílico')">Acrílico</button>
+<button onclick="filtrarProdutos('Placa')">Placa</button>
+<button onclick="filtrarProdutos('Luminoso')">Luminoso</button>
+<button onclick="filtrarProdutos('Bandeira')">Bandeira</button>
+<button onclick="filtrarProdutos('Arte')">Arte</button>
+<button onclick="filtrarProdutos('Faixa Refletiva')">Faixa Refletiva</button>
+<button onclick="filtrarProdutos('Boné')">Boné</button>
+<button onclick="filtrarProdutos('Blusa')">Blusa</button>
+<button onclick="filtrarProdutos('Adesivos')">Adesivos</button>
 </div>
 
 <!-- 🔹 Filtros por Status -->
 <div class="filtros" id="filtrosStatus">
-  <h3>Filtrar por Status</h3>
-  <button onclick="filtrarStatus('Todos')" class="ativo">Todos</button>
-  <button onclick="filtrarStatus('Aguardando Retorno')">Aguardando Retorno</button>
-  <button onclick="filtrarStatus('Arte não iniciada')">Arte não iniciada</button>
-  <button onclick="filtrarStatus('Arte Aprovada')">Arte Aprovada</button>
-  <button onclick="filtrarStatus('Produzindo')">Produzindo</button>
-  <button onclick="filtrarStatus('Pedido Finalizado/Falta Pagamento')">Pedido Finalizado/Falta Pagamento</button>
-  <button onclick="filtrarStatus('Pronto Para Envio')">Pronto Para Envio</button>
-  <button onclick="filtrarStatus('Venda Concluida e Finalizada')">Venda Concluida e Finalizada</button>
-  <button onclick="filtrarStatus('Cancelado')">Cancelado</button>
+<h3>Filtrar por Status</h3>
+<button onclick="filtrarStatus('Todos')" class="ativo">Todos</button>
+<button onclick="filtrarStatus('Aguardando Retorno')">Aguardando Retorno</button>
+<button onclick="filtrarStatus('Arte não iniciada')">Arte não iniciada</button>
+<button onclick="filtrarStatus('Arte Aprovada')">Arte Aprovada</button>
+<button onclick="filtrarStatus('Produzindo')">Produzindo</button>
+<button onclick="filtrarStatus('Pedido Finalizado/Falta Pagamento')">Pedido Finalizado/Falta Pagamento</button>
+<button onclick="filtrarStatus('Pronto Para Envio')">Pronto Para Envio</button>
+<button onclick="filtrarStatus('Venda Concluida e Finalizada')">Venda Concluida e Finalizada</button>
+<button onclick="filtrarStatus('Cancelado')">Cancelado</button>
 </div>
 
 <table id="tabelaPedidos">
-    <thead>
-        <tr>
-            <th>Vendedor</th>
-            <th>Cliente</th>
-            <th>Telefone</th>
-            <th>Produtos</th>
-            <th>Quantidade</th>
-            <th>Valor Unitário (R$)</th>
-            <th>Valor Total (R$)</th>
-            <th>Valor Recebido (R$)</th>
-            <th>Saldo Restante (R$)</th>
-            <th>Data Pedido</th>
-            <th>Data Entrega</th>
-            <th>Status</th>
-            <th>Anotações</th>
-            <th>Ação</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
+<thead>
+<tr>
+<th>Vendedor</th>
+<th>Cliente</th>
+<th>Telefone</th>
+<th>Produtos</th>
+<th>Quantidade</th>
+<th>Valor Unitário (R$)</th>
+<th>Valor Total (R$)</th>
+<th>Valor Recebido (R$)</th>
+<th>Saldo Restante (R$)</th>
+<th>Data Pedido</th>
+<th>Data Entrega</th>
+<th>Status</th>
+<th>Anotações</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody></tbody>
 </table>
 
 <div id="modalEditar">
-  <div>
-    <h3>Editar Pedido</h3>
-    <div id="produtosContainer"></div>
-    <label for="anotacoes">Anotações:</label>
+<div>
+<h3>Editar Pedido</h3>
+<div id="produtosContainer"></div>
+<label for="anotacoes">Anotações:</label>
 <textarea id="anotacoes" rows="3" style="width:100%; padding:5px;"></textarea>
-    <button onclick="adicionarLinhaProduto()">➕ Adicionar Produto</button>
-    <div class="totalPedido" id="totalPedido">Total: R$ 0.00</div>
-    <button onclick="salvarEdicao()">💾 Salvar</button>
-    <button onclick="fecharModal()">❌ Fechar</button>
-  </div>
+<button onclick="adicionarLinhaProduto()">➕ Adicionar Produto</button>
+<div class="totalPedido" id="totalPedido">Total: R$ 0.00</div>
+<button onclick="salvarEdicao()">💾 Salvar</button>
+<button onclick="fecharModal()">❌ Fechar</button>
+</div>
 </div>
 
 <script>
-        // Verifica se o usuário está logado
-  if(sessionStorage.getItem('isLoggedIn') !== 'true'){
-      window.location.href = 'login.html'; // redireciona para login
-  }
+// Verifica se o usuário está logado
+if(sessionStorage.getItem('isLoggedIn') !== 'true'){
+    window.location.href = 'login.html'; // redireciona para login
+}
+
 window.todosPedidos = [];
 window.filtroProduto = "Todos";
 window.filtroStatus = "Todos";
@@ -160,7 +158,6 @@ function renderizarTabela(pedidos) {
         if(pedido.status==="Pronto Para Envio") statusClass="status-verdeneon";
         if(pedido.status==="Venda Concluida e Finalizada") statusClass="status-verdeneon";
         if(pedido.status==="Cancelado") statusClass="status-vermelho";
-
         tr.innerHTML=`
             <td>${pedido.vendedor||""}</td>
             <td>${pedido.nome_cliente||""}</td>
@@ -173,16 +170,18 @@ function renderizarTabela(pedidos) {
             <td class="saldo" id="saldo-${pedido.id}">R$ ${saldoRestante}</td>
             <td>${pedido.data_pedido?new Date(pedido.data_pedido).toLocaleDateString():""}</td>
             <td>${pedido.data_entrega?new Date(pedido.data_entrega).toLocaleDateString():""}</td>
-            <td><select class="${statusClass}" onchange="atualizarStatus(${pedido.id},this.value,${pedido.valor_recebido||0},'${pedido.vendedor}','${pedido.telefone_cliente}')">
-                <option value="Aguardando Retorno" ${pedido.status==="Aguardando Retorno"?"selected":""}>Aguardando Retorno</option>
-                <option value="Arte Aprovada" ${pedido.status==="Arte Aprovada"?"selected":""}>Arte Aprovada</option>
-                <option value="Arte não iniciada" ${pedido.status==="Arte não iniciada"?"selected":""}>Arte não iniciada</option>
-                <option value="Produzindo" ${pedido.status==="Produzindo"?"selected":""}>Produzindo</option>
-                <option value="Pedido Finalizado/Falta Pagamento" ${pedido.status==="Pedido Finalizado/Falta Pagamento"?"selected":""}>Pedido Finalizado/Falta Pagamento</option>
-                <option value="Pronto Para Envio" ${pedido.status==="Pronto Para Envio"?"selected":""}>Pronto Para Envio</option>
-                <option value="Venda Concluida e Finalizada" ${pedido.status==="Venda Concluida e Finalizada"?"selected":""}>Venda Concluida e Finalizada</option>
-                <option value="Cancelado" ${pedido.status==="Cancelado"?"selected":""}>Cancelado</option>
-            </select></td>
+            <td>
+                <select class="${statusClass}" onchange="atualizarStatus(${pedido.id},this.value,${pedido.valor_recebido||0},'${pedido.vendedor}','${pedido.telefone_cliente}')">
+                    <option value="Aguardando Retorno" ${pedido.status==="Aguardando Retorno"?"selected":""}>Aguardando Retorno</option>
+                    <option value="Arte Aprovada" ${pedido.status==="Arte Aprovada"?"selected":""}>Arte Aprovada</option>
+                    <option value="Arte não iniciada" ${pedido.status==="Arte não iniciada"?"selected":""}>Arte não iniciada</option>
+                    <option value="Produzindo" ${pedido.status==="Produzindo"?"selected":""}>Produzindo</option>
+                    <option value="Pedido Finalizado/Falta Pagamento" ${pedido.status==="Pedido Finalizado/Falta Pagamento"?"selected":""}>Pedido Finalizado/Falta Pagamento</option>
+                    <option value="Pronto Para Envio" ${pedido.status==="Pronto Para Envio"?"selected":""}>Pronto Para Envio</option>
+                    <option value="Venda Concluida e Finalizada" ${pedido.status==="Venda Concluida e Finalizada"?"selected":""}>Venda Concluida e Finalizada</option>
+                    <option value="Cancelado" ${pedido.status==="Cancelado"?"selected":""}>Cancelado</option>
+                </select>
+            </td>
             <td>${pedido.anotacoes || ""}</td>
             <td>
                 <button onclick="editarPedido(${pedido.id})">✏️ Editar</button>
@@ -201,13 +200,8 @@ window.aplicarFiltros = function(){
         if(Array.isArray(p.itens)) texto+=p.itens.map(i=>i.produto).join(" ");
         return texto.toLowerCase().includes(termo);
     });
-
-    if(window.filtroProduto!=="Todos") 
-        filtrados=filtrados.filter(p=>p.itens.some(i=>i.produto.toLowerCase().includes(window.filtroProduto.toLowerCase())));
-
-    if(window.filtroStatus!=="Todos")
-        filtrados=filtrados.filter(p=>p.status===window.filtroStatus);
-
+    if(window.filtroProduto!=="Todos") filtrados=filtrados.filter(p=>p.itens.some(i=>i.produto.toLowerCase().includes(window.filtroProduto.toLowerCase())));
+    if(window.filtroStatus!=="Todos") filtrados=filtrados.filter(p=>p.status===window.filtroStatus);
     renderizarTabela(filtrados);
 }
 
@@ -249,10 +243,8 @@ window.removerPedido = async function(id){
 window.editarPedido = function(id){
     window.pedidoAtualEditar = window.todosPedidos.find(p=>p.id===id);
     if(!window.pedidoAtualEditar) return;
-
     const modal = document.getElementById("modalEditar");
     modal.style.display = "flex";
-
     const container = document.getElementById("produtosContainer");
     document.getElementById("anotacoes").value = window.pedidoAtualEditar.anotacoes || "";
     container.innerHTML = "";
@@ -275,7 +267,6 @@ function criarLinhaProduto(produto="", quantidade=1, valorUnit=0, index=null){
 }
 
 window.adicionarLinhaProduto = function(){ criarLinhaProduto(); }
-
 window.removerLinhaProduto = function(btn){ btn.parentElement.remove(); atualizarTotalModal(); }
 
 function atualizarTotalModal(){
@@ -297,23 +288,15 @@ window.salvarEdicao = async function(){
         quantidade: Number(div.querySelectorAll("input[type=number]")[0].value),
         valorUnit: Number(div.querySelectorAll("input[type=number]")[1].value)
     }));
-
     const id = window.pedidoAtualEditar.id;
     const anotacoes = document.getElementById("anotacoes").value;
-
-    await fetch("/api/pedidos", {
-        method: "PUT",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ id, itens: novosItens, anotacoes })
-    });
-
+    await fetch("/api/pedidos", { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ id, itens: novosItens, anotacoes }) });
     const pedido = window.todosPedidos.find(p=>p.id===id);
     if(pedido){
         pedido.itens = novosItens;
         pedido.valor_total = novosItens.reduce((acc,item)=>acc + item.quantidade * item.valorUnit, 0);
-        pedido.anotacoes = anotacoes; // <-- ATUALIZA LOCALMENTE
+        pedido.anotacoes = anotacoes;
     }
-
     fecharModal();
     carregarPedidos();
 }
@@ -324,10 +307,9 @@ window.fecharModal=function(){document.getElementById("modalEditar").style.displ
 carregarPedidos();
 
 function sair() {
-    sessionStorage.removeItem('isLoggedIn'); // limpa o login
-    window.location.href = "login.html"; // redireciona para login
+    sessionStorage.removeItem('isLoggedIn');
+    window.location.href = "login.html";
 }
 </script>
-
 </body>
 </html>
