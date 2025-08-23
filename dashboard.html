@@ -123,16 +123,24 @@ window.carregarPedidos = async function() {
     const res = await fetch("/api/pedidos");
     const novos = await res.json();
 
-    // 🔹 preserva as anotações antigas no frontend
-    novos.forEach(novo => {
-        const antigo = window.todosPedidos.find(p => p.id === novo.id);
-        if (antigo) {
-            // se já tinha anotação antes, mantém
-            if (antigo.anotacoes && (!novo.anotacoes || novo.anotacoes === "")) {
-                novo.anotacoes = antigo.anotacoes;
-            }
+    // 🔹 preserva dados antigos no frontend
+novos.forEach(novo => {
+    const antigo = window.todosPedidos.find(p => p.id === novo.id);
+    if (antigo) {
+        // preserva anotações
+        if (antigo.anotacoes && (!novo.anotacoes || novo.anotacoes === "")) {
+            novo.anotacoes = antigo.anotacoes;
         }
-    });
+        // preserva vendedor
+        if (antigo.vendedor && (!novo.vendedor || novo.vendedor === "")) {
+            novo.vendedor = antigo.vendedor;
+        }
+        // preserva telefone do cliente
+        if (antigo.telefone_cliente && (!novo.telefone_cliente || novo.telefone_cliente === "")) {
+            novo.telefone_cliente = antigo.telefone_cliente;
+        }
+    }
+});
 
     window.todosPedidos = novos;
     ordenarPedidos();
