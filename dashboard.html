@@ -121,7 +121,20 @@ window.pedidoAtualEditar = null;
 
 window.carregarPedidos = async function() {
     const res = await fetch("/api/pedidos");
-    window.todosPedidos = await res.json();
+    const novos = await res.json();
+
+    // 🔹 preserva as anotações antigas no frontend
+    novos.forEach(novo => {
+        const antigo = window.todosPedidos.find(p => p.id === novo.id);
+        if (antigo) {
+            // se já tinha anotação antes, mantém
+            if (antigo.anotacoes && (!novo.anotacoes || novo.anotacoes === "")) {
+                novo.anotacoes = antigo.anotacoes;
+            }
+        }
+    });
+
+    window.todosPedidos = novos;
     ordenarPedidos();
     aplicarFiltros();
 }
@@ -139,18 +152,13 @@ function renderizarTabela(pedidos) {
     tbody.innerHTML = "";
     pedidos.forEach((pedido)=>{
         let tr=document.createElement("tr");
-        let produtosHTML="<ul>", quantidadesHTML="<ul>", valoresUnitHTML="<ul>", anotacoesHTML="<ul>", valorTotalPedido=0;
-if(Array.isArray(pedido.itens)) pedido.itens.forEach(item=>{
-    produtosHTML+=`<li>${item.produto}</li>`;
-    quantidadesHTML+=`<li>${item.quantidade}</li>`;
-    valoresUnitHTML+=`<li>R$ ${Number(item.valorUnit).toFixed(2)}</li>`;
-    anotacoesHTML+=`<li>${item.anotacoes || "-"}</li>`; // FIXAR ANOTAÇÃO DO ITEM
-    valorTotalPedido+=Number(item.valorUnit)*Number(item.quantidade);
-});
-produtosHTML+="</ul>"; 
-quantidadesHTML+="</ul>"; 
-valoresUnitHTML+="</ul>";
-anotacoesHTML+="</ul>";
+        let produtosHTML="<ul>", quantidadesHTML="<ul>", valoresUnitHTML="<ul>", valorTotalPedido=0;
+        if(Array.isArray(pedido.itens)) pedido.itens.forEach(item=>{
+            produtosHTML+=`<li>${item.produto}</li>`;
+            quantidadesHTML+=`<li>${item.quantidade}</li>`;
+            valoresUnitHTML+=`<li>R$ ${Number(item.valorUnit).toFixed(2)}</li>`;
+            valorTotalPedido+=Number(item.valorUnit)*Number(item.quantidade);
+        });
         produtosHTML+="</ul>"; quantidadesHTML+="</ul>"; valoresUnitHTML+="</ul>";
         if(!pedido.valor_total) pedido.valor_total=valorTotalPedido;
         const saldoRestante=(Number(pedido.valor_total)-Number(pedido.valor_recebido||0)).toFixed(2);
@@ -170,7 +178,6 @@ anotacoesHTML+="</ul>";
             <td>${produtosHTML}</td>
             <td>${quantidadesHTML}</td>
             <td>${valoresUnitHTML}</td>
-            <td>${anotacoesHTML}</td>
             <td>R$ ${Number(pedido.valor_total).toFixed(2)}</td>
             <td><input type="number" step="0.01" value="${pedido.valor_recebido||0}" onchange="atualizarValorRecebido(${pedido.id},parseFloat(this.value),'${pedido.status}','${pedido.vendedor}','${pedido.telefone_cliente}')"></td>
             <td class="saldo" id="saldo-${pedido.id}">R$ ${saldoRestante}</td>
