@@ -38,12 +38,20 @@ if(sessionStorage.getItem('isLoggedIn') !== 'true'){
 
 function formatarData(dataStr) {
     if (!dataStr) return "-";
-    // Se vier no formato YYYY-MM-DD, tratamos sem fuso horário
+
+    // Se já vier no formato YYYY-MM-DD
     if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
         const [ano, mes, dia] = dataStr.split("-");
         return `${dia}/${mes}/${ano}`;
     }
-    // Caso venha em outro formato (ex: ISO completo), usa fallback
+
+    // Se vier no formato ISO com horário (ex: 2025-08-27T00:00:00.000Z)
+    if (dataStr.includes("T")) {
+        const [ano, mes, dia] = dataStr.split("T")[0].split("-");
+        return `${dia}/${mes}/${ano}`;
+    }
+
+    // Fallback (casos fora do padrão)
     const data = new Date(dataStr);
     return isNaN(data) ? "-" : data.toLocaleDateString("pt-BR");
 }
