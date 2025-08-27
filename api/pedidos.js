@@ -33,29 +33,38 @@ export default async function handler(req, res) {
       res.status(200).json(result.rows);
 
     } else if (req.method === 'POST') {
-      const { nomeCliente, telefoneCliente, vendedor, itens, valorRecebido, dataPedido, dataEntrega, status, anotacoes } = req.body;
+  const { nomeCliente, telefoneCliente, vendedor, itens, valorRecebido, dataEntrega, status, anotacoes } = req.body;
 
-      const total = calcularTotal(itens);
+  const total = calcularTotal(itens);
 
-      await client.query(
-        `INSERT INTO pedidos 
-          (vendedor, nome_cliente, telefone_cliente, itens, valor_total, valor_recebido, data_pedido, data_entrega, status, anotacoes)
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-        [
-          vendedor,
-          nomeCliente,
-          telefoneCliente,
-          JSON.stringify(itens),
-          total,
-          valorRecebido || 0,
-          formatarDataDB(dataPedido),
-          formatarDataDB(dataEntrega),
-          status || 'Aguardando Retorno',
-          anotacoes || ""
-        ]
-      );
+  // Função para gerar a data atual no formato YYYY-MM-DD
+  function dataAtualFormatada() {
+    const now = new Date();
+    const ano = now.getFullYear();
+    const mes = String(now.getMonth() + 1).padStart(2, "0");
+    const dia = String(now.getDate()).padStart(2, "0");
+    return `${ano}-${mes}-${dia}`;
+  }
 
-      res.status(201).json({ message: 'Pedido criado com sucesso!' });
+  await client.query(
+    `INSERT INTO pedidos 
+      (vendedor, nome_cliente, telefone_cliente, itens, valor_total, valor_recebido, data_pedido, data_entrega, status, anotacoes)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+    [
+      vendedor,
+      nomeCliente,
+      telefoneCliente,
+      JSON.stringify(itens),
+      total,
+      valorRecebido || 0,
+      dataAtualFormatada(),        // <-- sempre pega a data de hoje
+      formatarDataDB(dataEntrega),
+      status || 'Aguardando Retorno',
+      anotacoes || ""
+    ]
+  );
+
+  res.status(201).json({ message: 'Pedido criado com sucesso!' });
 
     } else if (req.method === 'PUT') {
       const { id, valorRecebido, status, vendedor, telefoneCliente, itens, anotacoes } = req.body;
