@@ -120,14 +120,17 @@ entrega.setDate(hoje.getDate() + 10);
 const dataPedidoEl = document.getElementById("dataPedido");
 const dataEntregaEl = document.getElementById("dataEntrega");
 
-// Função para converter data para formato ISO (YYYY-MM-DD)
-function formatDateISO(date){
-    return date.toISOString().split('T')[0];
+// Função corrigida: gera YYYY-MM-DD local sem fuso horário
+function formatDateLocal(date){
+    const ano = date.getFullYear();
+    const mes = String(date.getMonth() + 1).padStart(2, "0");
+    const dia = String(date.getDate()).padStart(2, "0");
+    return `${ano}-${mes}-${dia}`;
 }
 
-// Preencher os campos com datas no formato ISO
-dataPedidoEl.value = formatDateISO(hoje);
-dataEntregaEl.value = formatDateISO(entrega);
+// Preencher os campos com datas locais
+dataPedidoEl.value = formatDateLocal(hoje);
+dataEntregaEl.value = formatDateLocal(entrega);
 
 function atualizarValorTotal(){
     let total = 0;
@@ -187,9 +190,9 @@ document.getElementById("pedidoForm").addEventListener("submit", async function(
         nomeCliente: document.getElementById("nomeCliente").value,
         telefoneCliente: document.getElementById("telefoneCliente").value,
         itens,
-        anotacoes: document.getElementById("anotacoes").value, // <- aqui
-        dataPedido: formatDateISO(hoje),
-        dataEntrega: formatDateISO(entrega),
+        anotacoes: document.getElementById("anotacoes").value,
+        dataPedido: formatDateLocal(hoje),
+        dataEntrega: formatDateLocal(entrega),
         valorTotal: itens.reduce((acc,i)=>acc+i.total,0),
         valorRecebido: parseFloat(document.getElementById("valorRecebido").value)||0,
         status:"Aguardando Retorno"
@@ -205,8 +208,8 @@ document.getElementById("pedidoForm").addEventListener("submit", async function(
         if(res.ok){
             alert("✅ Pedido cadastrado com sucesso!");
             this.reset();
-            dataPedidoEl.value = formatDateISO(hoje);
-            dataEntregaEl.value = formatDateISO(entrega);
+            dataPedidoEl.value = formatDateLocal(hoje);
+            dataEntregaEl.value = formatDateLocal(entrega);
             document.getElementById("itensContainer").innerHTML="";
             document.getElementById("itensContainer").appendChild(criarItem());
             atualizarValorTotal();

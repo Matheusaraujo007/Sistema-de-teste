@@ -119,28 +119,38 @@ window.filtroProduto = "Todos";
 window.filtroStatus = "Todos";
 window.pedidoAtualEditar = null;
 
+// 🔹 Função para formatar data sem fuso horário
+function formatarData(dataStr) {
+    if (!dataStr) return "";
+    // Se vier no formato YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
+        const [ano, mes, dia] = dataStr.split("-");
+        return `${dia}/${mes}/${ano}`;
+    }
+    // fallback para outros formatos
+    const data = new Date(dataStr);
+    return isNaN(data) ? "" : data.toLocaleDateString("pt-BR");
+}
+
 window.carregarPedidos = async function() {
     const res = await fetch("/api/pedidos");
     const novos = await res.json();
 
     // 🔹 preserva dados antigos no frontend
-novos.forEach(novo => {
-    const antigo = window.todosPedidos.find(p => p.id === novo.id);
-    if (antigo) {
-        // preserva anotações
-        if (antigo.anotacoes && (!novo.anotacoes || novo.anotacoes === "")) {
-            novo.anotacoes = antigo.anotacoes;
+    novos.forEach(novo => {
+        const antigo = window.todosPedidos.find(p => p.id === novo.id);
+        if (antigo) {
+            if (antigo.anotacoes && (!novo.anotacoes || novo.anotacoes === "")) {
+                novo.anotacoes = antigo.anotacoes;
+            }
+            if (antigo.vendedor && (!novo.vendedor || novo.vendedor === "")) {
+                novo.vendedor = antigo.vendedor;
+            }
+            if (antigo.telefone_cliente && (!novo.telefone_cliente || novo.telefone_cliente === "")) {
+                novo.telefone_cliente = antigo.telefone_cliente;
+            }
         }
-        // preserva vendedor
-        if (antigo.vendedor && (!novo.vendedor || novo.vendedor === "")) {
-            novo.vendedor = antigo.vendedor;
-        }
-        // preserva telefone do cliente
-        if (antigo.telefone_cliente && (!novo.telefone_cliente || novo.telefone_cliente === "")) {
-            novo.telefone_cliente = antigo.telefone_cliente;
-        }
-    }
-});
+    });
 
     window.todosPedidos = novos;
     ordenarPedidos();
@@ -189,8 +199,8 @@ function renderizarTabela(pedidos) {
             <td>R$ ${Number(pedido.valor_total).toFixed(2)}</td>
             <td><input type="number" step="0.01" value="${pedido.valor_recebido||0}" onchange="atualizarValorRecebido(${pedido.id},parseFloat(this.value),'${pedido.status}','${pedido.vendedor}','${pedido.telefone_cliente}')"></td>
             <td class="saldo" id="saldo-${pedido.id}">R$ ${saldoRestante}</td>
-            <td>${pedido.data_pedido?new Date(pedido.data_pedido).toLocaleDateString():""}</td>
-            <td>${pedido.data_entrega?new Date(pedido.data_entrega).toLocaleDateString():""}</td>
+            <td>${formatarData(pedido.data_pedido)}</td>
+            <td>${formatarData(pedido.data_entrega)}</td>
             <td>
                 <select class="${statusClass}" onchange="atualizarStatus(${pedido.id},this.value,${pedido.valor_recebido||0},'${pedido.vendedor}','${pedido.telefone_cliente}')">
                     <option value="Aguardando Retorno" ${pedido.status==="Aguardando Retorno"?"selected":""}>Aguardando Retorno</option>

@@ -38,8 +38,14 @@ if(sessionStorage.getItem('isLoggedIn') !== 'true'){
 
 function formatarData(dataStr) {
     if (!dataStr) return "-";
+    // Se vier no formato YYYY-MM-DD, tratamos sem fuso horário
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
+        const [ano, mes, dia] = dataStr.split("-");
+        return `${dia}/${mes}/${ano}`;
+    }
+    // Caso venha em outro formato (ex: ISO completo), usa fallback
     const data = new Date(dataStr);
-    return data.toLocaleDateString("pt-BR");
+    return isNaN(data) ? "-" : data.toLocaleDateString("pt-BR");
 }
 
 function formatarMoeda(valor) {
@@ -88,7 +94,7 @@ async function carregarPedidos() {
                     <p><b>Telefone:</b> ${p.telefone_cliente || p.telefoneCliente}</p>
                     <p><b>Produtos:</b> ${produtosHTML}</p>
                     ${anotacoesHTML}
-                    <p><b>Valor Total:</b> ${formatarMoeda(parseFloat(p.valor_total || p.valorTotal))}</p>
+                    <p><b>Valor total:</b> ${formatarMoeda(parseFloat(p.valor_total || p.valorTotal))}</p>
                     <p><b>Valor Recebido:</b> ${formatarMoeda(parseFloat(p.valor_recebido || p.valorRecebido))}</p>
                     <p><b>Data Pedido:</b> ${formatarData(p.data_pedido || p.dataPedido)}</p>
                     <p><b>Data Entrega:</b> ${formatarData(p.data_entrega || p.dataEntrega)}</p>
