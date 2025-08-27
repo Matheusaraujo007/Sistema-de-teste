@@ -1,4 +1,3 @@
-// /api/pedidos.js
 import pkg from 'pg';
 const { Pool } = pkg;
 
@@ -24,6 +23,19 @@ function formatarDataDB(dataStr) {
   return `${ano}-${mes}-${dia}`;
 }
 
+// Função aprimorada para gerar a data atual no formato YYYY-MM-DD no fuso local
+function dataAtualFormatada() {
+  const now = new Date();
+  // Usa Intl.DateTimeFormat para respeitar o fuso local
+  const formatter = new Intl.DateTimeFormat('pt-BR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  const [{ value: dia }, , { value: mes }, , { value: ano }] = formatter.formatToParts(now);
+  return `${ano}-${mes}-${dia}`;
+}
+
 export default async function handler(req, res) {
   const client = await pool.connect();
 
@@ -33,38 +45,29 @@ export default async function handler(req, res) {
       res.status(200).json(result.rows);
 
     } else if (req.method === 'POST') {
-  const { nomeCliente, telefoneCliente, vendedor, itens, valorRecebido, dataEntrega, status, anotacoes } = req.body;
+      const { nomeCliente, telefoneCliente, vendedor, itens, valorRecebido, dataEntrega, status, anotacoes } = req.body;
 
-  const total = calcularTotal(itens);
+      const total = calcularTotal(itens);
 
-  // Função para gerar a data atual no formato YYYY-MM-DD
-  function dataAtualFormatada() {
-    const now = new Date();
-    const ano = now.getFullYear();
-    const mes = String(now.getMonth() + 1).padStart(2, "0");
-    const dia = String(now.getDate()).padStart(2, "0");
-    return `${ano}-${mes}-${dia}`;
-  }
+      await client.query(
+        `INSERT INTO pedidos 
+          (vendedor, nome_cliente, telefone_cliente, itens, valor_total, valor_recebido, data_pedido, data_entrega, status, anotacoes)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+        [
+          vendedor,
+          nomeCliente,
+          telefoneCliente,
+          JSON.stringify(itens),
+          total,
+          valorRecebido || 0,
+          dataAtualFormatada(),        // <-- data correta no fuso local
+          formatarDataDB(dataEntrega),
+          status || 'Aguardando Retorno',
+          anotacoes || ""
+        ]
+      );
 
-  await client.query(
-    `INSERT INTO pedidos 
-      (vendedor, nome_cliente, telefone_cliente, itens, valor_total, valor_recebido, data_pedido, data_entrega, status, anotacoes)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-    [
-      vendedor,
-      nomeCliente,
-      telefoneCliente,
-      JSON.stringify(itens),
-      total,
-      valorRecebido || 0,
-      dataAtualFormatada(),        // <-- sempre pega a data de hoje
-      formatarDataDB(dataEntrega),
-      status || 'Aguardando Retorno',
-      anotacoes || ""
-    ]
-  );
-
-  res.status(201).json({ message: 'Pedido criado com sucesso!' });
+      res.status(201).json({ message: 'Pedido criado com sucesso!' });
 
     } else if (req.method === 'PUT') {
       const { id, valorRecebido, status, vendedor, telefoneCliente, itens, anotacoes } = req.body;
