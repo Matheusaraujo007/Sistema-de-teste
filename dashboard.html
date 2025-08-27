@@ -30,6 +30,8 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 .filtros button { margin: 5px; padding: 8px 12px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px; background: #2f7fb3; color: white; }
 .filtros button:hover { opacity: 0.8; }
 .filtros button.ativo { background: #155d82; }
+#impressaoContainer { text-align:center; margin:20px 0; }
+#impressaoContainer select { width:200px; }
 /* Modal */
 #modalEditar { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
 #modalEditar div { background:white; padding:20px; border-radius:10px; width:90%; max-width:500px; max-height:90%; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
@@ -58,6 +60,24 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 <button onclick="filtrarProdutos('Blusa')">Blusa</button>
 <button onclick="filtrarProdutos('Adesivos')">Adesivos</button>
 </div>
+
+<!-- 🔹 Impressão por Produto -->
+<div id="impressaoContainer">
+  <select id="produtoSelect">
+    <option value="">-- Selecione um Produto --</option>
+    <option value="Acrílico">Acrílico</option>
+    <option value="Placa">Placa</option>
+    <option value="Luminoso">Luminoso</option>
+    <option value="Bandeira">Bandeira</option>
+    <option value="Arte">Arte</option>
+    <option value="Faixa Refletiva">Faixa Refletiva</option>
+    <option value="Boné">Boné</option>
+    <option value="Blusa">Blusa</option>
+    <option value="Adesivos">Adesivos</option>
+  </select>
+  <button onclick="imprimirProduto()">🖨️ Imprimir</button>
+</div>
+
 
 <!-- 🔹 Filtros por Status -->
 <div class="filtros" id="filtrosStatus">
@@ -366,6 +386,55 @@ carregarPedidos();
 function sair() {
     sessionStorage.removeItem('isLoggedIn');
     window.location.href = "login.html";
+}
+
+// 🔹 Impressão filtrada por produto
+function imprimirProduto() {
+  let produtoEscolhido = document.getElementById("produtoSelect").value;
+  if (!produtoEscolhido) {
+    alert("Selecione um produto para imprimir!");
+    return;
+  }
+
+  let pedidosFiltrados = window.todosPedidos.filter(p =>
+    p.itens && p.itens.some(i => i.produto.toLowerCase().includes(produtoEscolhido.toLowerCase()))
+  );
+
+  if (pedidosFiltrados.length === 0) {
+    alert("Nenhum pedido encontrado para este produto.");
+    return;
+  }
+
+  let conteudo = "<h2>Pedidos - " + produtoEscolhido + "</h2>";
+  conteudo += "<table border='1' cellspacing='0' cellpadding='5' style='width:100%; border-collapse: collapse;'>";
+  conteudo += "<tr><th>Cliente</th><th>Telefone</th><th>Produto</th><th>Qtd</th><th>Vlr Unit</th><th>Vlr Total</th><th>Data Pedido</th><th>Data Entrega</th><th>Status</th></tr>";
+
+  pedidosFiltrados.forEach(p => {
+    p.itens.forEach(item => {
+      if (item.produto.toLowerCase().includes(produtoEscolhido.toLowerCase())) {
+        conteudo += "<tr>" +
+          "<td>" + (p.nome_cliente || "") + "</td>" +
+          "<td>" + (p.telefone_cliente || "") + "</td>" +
+          "<td>" + item.produto + "</td>" +
+          "<td>" + item.quantidade + "</td>" +
+          "<td>R$ " + Number(item.valorUnit).toFixed(2) + "</td>" +
+          "<td>R$ " + (item.quantidade * item.valorUnit).toFixed(2) + "</td>" +
+          "<td>" + (p.data_pedido ? formatarData(p.data_pedido) : "") + "</td>" +
+          "<td>" + (p.data_entrega ? formatarData(p.data_entrega) : "") + "</td>" +
+          "<td>" + (p.status || "") + "</td>" +
+        "</tr>";
+      }
+    });
+  });
+
+  conteudo += "</table>";
+
+  let janela = window.open("", "", "width=900,height=650");
+  janela.document.write("<html><head><title>Pedidos - " + produtoEscolhido + "</title>");
+  janela.document.write("<style> body{font-family:Arial} table{margin-top:10px;} th,td{padding:6px; text-align:center;} th{background:#f0f0f0;} </style>");
+  janela.document.write("</head><body>" + conteudo + "</body></html>");
+  janela.document.close();
+  janela.print();
 }
 </script>
 </body>
