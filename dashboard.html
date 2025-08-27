@@ -122,18 +122,21 @@ window.pedidoAtualEditar = null;
 // 🔹 Função para formatar datas corretamente no fuso local
 function formatarData(dataStr) {
     if (!dataStr) return "";
-    // Se já vier no formato YYYY-MM-DD (sem horário)
+
+    // Caso já esteja no formato YYYY-MM-DD
     if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
         const [ano, mes, dia] = dataStr.split("-");
         return `${dia}/${mes}/${ano}`;
     }
-    // Para datas com horário
-    const data = new Date(dataStr);
-    if (isNaN(data)) return "";
-    const dia = String(data.getDate()).padStart(2, "0");
-    const mes = String(data.getMonth() + 1).padStart(2, "0");
-    const ano = data.getFullYear();
-    return `${dia}/${mes}/${ano}`;
+
+    // Para strings com horário (ISO ou UTC)
+    const partes = dataStr.split("T")[0].split("-"); // pega só o YYYY-MM-DD
+    if (partes.length === 3) {
+        const [ano, mes, dia] = partes;
+        return `${dia}/${mes}/${ano}`;
+    }
+
+    return "";
 }
 
 window.carregarPedidos = async function() {
