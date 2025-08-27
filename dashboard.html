@@ -396,9 +396,12 @@ function imprimirProduto() {
     return;
   }
 
-  let pedidosFiltrados = window.todosPedidos.filter(p =>
-    p.itens && p.itens.some(i => i.produto.toLowerCase().includes(produtoEscolhido.toLowerCase()))
-  );
+  let statusPermitidos = ["Aguardando Retorno", "Arte Aprovada", "Arte não iniciada"];
+
+let pedidosFiltrados = window.todosPedidos.filter(p =>
+  statusPermitidos.includes(p.status) &&
+  p.itens && p.itens.some(i => i.produto.toLowerCase().includes(produtoEscolhido.toLowerCase()))
+);
 
   if (pedidosFiltrados.length === 0) {
     alert("Nenhum pedido encontrado para este produto.");
