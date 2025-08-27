@@ -1,36 +1,27 @@
 // /api/pedidos.js
 import pkg from 'pg';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc.js';
-import timezone from 'dayjs/plugin/timezone.js';
-
 const { Pool } = pkg;
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
-// Calcula o valor total do pedido
+// Função para calcular o valor total de um pedido
 function calcularTotal(itens) {
   if (!itens || !Array.isArray(itens)) return 0;
-  return itens.reduce(
-    (acc, i) => acc + (parseFloat(i.quantidade) || 0) * (parseFloat(i.valorUnit) || 0),
-    0
-  );
+  return itens.reduce((acc, i) => acc + (parseFloat(i.quantidade) || 0) * (parseFloat(i.valorUnit) || 0), 0);
 }
 
-// Formata datas no padrão YYYY-MM-DD
+// Função para padronizar datas no formato YYYY-MM-DD
 function formatarDataDB(dataStr) {
   if (!dataStr) return null;
-  return dayjs(dataStr).format('YYYY-MM-DD');
-}
-
-// Retorna a data atual em Brasília
-function dataAtualBrasilia() {
-  return dayjs().tz('America/Sao_Paulo').format('YYYY-MM-DD');
+  const data = new Date(dataStr);
+  if (isNaN(data)) return null;
+  const ano = data.getFullYear();
+  const mes = String(data.getMonth() + 1).padStart(2, "0");
+  const dia = String(data.getDate()).padStart(2, "0");
+  return `${ano}-${mes}-${dia}`;
 }
 
 export default async function handler(req, res) {
@@ -42,29 +33,38 @@ export default async function handler(req, res) {
       res.status(200).json(result.rows);
 
     } else if (req.method === 'POST') {
-      const { nomeCliente, telefoneCliente, vendedor, itens, valorRecebido, dataEntrega, status, anotacoes } = req.body;
+  const { nomeCliente, telefoneCliente, vendedor, itens, valorRecebido, dataEntrega, status, anotacoes } = req.body;
 
-      const total = calcularTotal(itens);
+  const total = calcularTotal(itens);
 
-      await client.query(
-        `INSERT INTO pedidos 
-          (vendedor, nome_cliente, telefone_cliente, itens, valor_total, valor_recebido, data_pedido, data_entrega, status, anotacoes)
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-        [
-          vendedor,
-          nomeCliente,
-          telefoneCliente,
-          JSON.stringify(itens),
-          total,
-          valorRecebido || 0,
-          dataAtualBrasilia(),         // sempre a data correta em Brasília
-          formatarDataDB(dataEntrega),
-          status || 'Aguardando Retorno',
-          anotacoes || ""
-        ]
-      );
+  // Função para gerar a data atual no formato YYYY-MM-DD
+  function dataAtualFormatada() {
+    const now = new Date();
+    const ano = now.getFullYear();
+    const mes = String(now.getMonth() + 1).padStart(2, "0");
+    const dia = String(now.getDate()).padStart(2, "0");
+    return `${ano}-${mes}-${dia}`;
+  }
 
-      res.status(201).json({ message: 'Pedido criado com sucesso!' });
+  await client.query(
+    `INSERT INTO pedidos 
+      (vendedor, nome_cliente, telefone_cliente, itens, valor_total, valor_recebido, data_pedido, data_entrega, status, anotacoes)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+    [
+      vendedor,
+      nomeCliente,
+      telefoneCliente,
+      JSON.stringify(itens),
+      total,
+      valorRecebido || 0,
+      dataAtualFormatada(),        // <-- sempre pega a data de hoje
+      formatarDataDB(dataEntrega),
+      status || 'Aguardando Retorno',
+      anotacoes || ""
+    ]
+  );
+
+  res.status(201).json({ message: 'Pedido criado com sucesso!' });
 
     } else if (req.method === 'PUT') {
       const { id, valorRecebido, status, vendedor, telefoneCliente, itens, anotacoes } = req.body;
