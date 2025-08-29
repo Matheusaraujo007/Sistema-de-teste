@@ -263,7 +263,6 @@ function renderizarTabela(pedidos) {
             <td>
                 <button onclick="editarPedido(${pedido.id})">✏️ Editar</button>
                 <button onclick="removerPedido(${pedido.id})">🗑️ Remover</button>
-                <button onclick="abrirCaixa(${pedido.id})">💵 Caixa</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -439,20 +438,6 @@ let pedidosFiltrados = window.todosPedidos.filter(p =>
   janela.document.write("</head><body>" + conteudo + "</body></html>");
   janela.document.close();
   janela.print();
-}
-
-function abrirCaixa(id) {
-  const pedido = window.todosPedidos.find(p => p.id === id);
-  if (!pedido) {
-    alert("Pedido não encontrado!");
-    return;
-  }
-
-  // Armazena os dados no localStorage para passar para a tela de Caixa
-  localStorage.setItem("pedidoCaixa", JSON.stringify(pedido));
-
-  // Abre a tela de caixa em uma nova aba
-  window.open("recebimento.html", "_blank");
 }
 </script>
 </body>
