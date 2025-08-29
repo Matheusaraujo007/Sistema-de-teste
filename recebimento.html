@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💵 Caixa</title>
+  <style>
+    body { font-family: "Segoe UI", Arial, sans-serif; background: #f4f7fb; margin: 0; padding: 20px; }
+    .caixa-container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #2f7fb3; margin-bottom: 20px; }
+    .info-pedido { background: #e9f5ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #cce7ff; }
+    .info-pedido p { margin: 5px 0; font-size: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    table th, table td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+    table th { background: #2f7fb3; color: #fff; }
+    .total { font-size: 18px; font-weight: bold; text-align: right; margin: 10px 0; }
+    .status { font-size: 16px; font-weight: bold; margin-bottom: 15px; }
+    .status.pago { color: green; }
+    .status.pendente { color: red; }
+    .actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s; }
+    .btn-pago { background: #28a745; color: white; }
+    .btn-pendente { background: #ffc107; color: #000; }
+    .btn:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="caixa-container">
+    <h1>💵 Caixa</h1>
+
+    <!-- Info do Pedido -->
+    <div class="info-pedido">
+      <p><strong>Pedido:</strong> <span id="pedidoId"></span></p>
+      <p><strong>Cliente:</strong> <span id="clienteNome"></span></p>
+      <p><strong>Telefone:</strong> <span id="clienteTelefone"></span></p>
+    </div>
+
+    <!-- Produtos -->
+    <table>
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Qtd</th>
+          <th>Preço Unit.</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="itens"></tbody>
+    </table>
+
+    <!-- Total e Status -->
+    <div class="total">Total: R$ <span id="total">0,00</span></div>
+    <div class="status" id="status"></div>
+
+    <!-- Campo de valor recebido -->
+    <div style="margin: 15px 0;">
+      <label><strong>Valor recebido:</strong></label>
+      <input type="number" id="valorRecebido" step="0.01" style="padding:5px; width:150px;">
+    </div>
+
+    <!-- Botões -->
+    <div class="actions">
+      <button class="btn btn-pendente" onclick="receberParcial()">Receber Parcial</button>
+      <button class="btn btn-pago" onclick="receberCompleto()">Receber Completo</button>
+    </div>
+  </div>
+
+  <script>
+    let pedido = null;
+
+    // Busca o ID do pedido pela URL (ex: caixa.html?id=5)
+    const params = new URLSearchParams(window.location.search);
+    const pedidoId = params.get("id");
+
+    async function carregarPedido() {
+      const res = await fetch("/api/pedidos");
+      const pedidos = await res.json();
+      pedido = pedidos.find(p => p.id == pedidoId);
+
+      if (!pedido) {
+        alert("Pedido não encontrado!");
+        return;
+      }
+
+      document.getElementById("pedidoId").textContent = pedido.id;
+      document.getElementById("clienteNome").textContent = pedido.nome_cliente;
+      document.getElementById("clienteTelefone").textContent = pedido.telefone_cliente;
+
+      // Lista os itens
+      const tbody = document.getElementById("itens");
+      tbody.innerHTML = "";
+      let total = 0;
+      pedido.itens.forEach(item => {
+        const subtotal = item.quantidade * item.valorUnit;
+        total += subtotal;
+        tbody.innerHTML += `
+          <tr>
+            <td>${item.produto}</td>
+            <td>${item.quantidade}</td>
+            <td>R$ ${item.valorUnit.toFixed(2)}</td>
+            <td>R$ ${subtotal.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      document.getElementById("total").textContent = total.toFixed(2).replace(".", ",");
+      atualizarStatus();
+    }
+
+    function atualizarStatus() {
+      const statusEl = document.getElementById("status");
+      if (pedido.valor_recebido >= pedido.valor_total) {
+        statusEl.textContent = "Status: Pago ✔️";
+        statusEl.className = "status pago";
+      } else {
+        statusEl.textContent = "Status: Pendente ⏳";
+        statusEl.className = "status pendente";
+      }
+    }
+
+    async function receberParcial() {
+      const valor = parseFloat(document.getElementById("valorRecebido").value) || 0;
+      pedido.valor_recebido += valor;
+
+      await fetch("/api/pedidos", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: pedido.id,
+          valorRecebido: pedido.valor_recebido,
+          status: (pedido.valor_recebido >= pedido.valor_total ? "Pago" : "Pendente"),
+          vendedor: pedido.vendedor,
+          telefoneCliente: pedido.telefone_cliente,
+          anotacoes: pedido.anotacoes
+        })
+      });
+
+      atualizarStatus();
+      alert("Pagamento parcial registrado!");
+    }
+
+    async function receberCompleto() {
+      pedido.valor_recebido = pedido.valor_total;
+
+      await fetch("/api/pedidos", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: pedido.id,
+          valorRecebido: pedido.valor_total,
+          status: "Pago",
+          vendedor: pedido.vendedor,
+          telefoneCliente: pedido.telefone_cliente,
+          anotacoes: pedido.anotacoes
+        })
+      });
+
+      atualizarStatus();
+      alert("Pagamento concluído!");
+    }
+
+    carregarPedido();
+  </script>
+</body>
+</html>

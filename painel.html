@@ -102,6 +102,10 @@
       <button class="btn" onclick="abrirPagina('pedidos')">
         📦 Pedidos       
       </button>
+
+      <button class="btn" onclick="abrirPagina('recebimento')">
+        💰 Caixa
+      </button>
     </div>
 
     <!-- Botão sair -->
@@ -136,6 +140,9 @@
 
         if (pagina === "pedidos") {
           conteudo.innerHTML = `<iframe src="meus-pedidos.html"></iframe>`;
+        }
+        if (pagina === "recebimento") {
+          conteudo.innerHTML = `<iframe src="recebimento.html"></iframe>`;
         }
       }
 
