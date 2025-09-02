@@ -78,6 +78,21 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
   <button onclick="imprimirProduto()">🖨️ Imprimir</button>
 </div>
 
+
+<!-- 🔹 Filtros por Status -->
+<div class="filtros" id="filtrosStatus">
+<h3>Filtrar por Status</h3>
+<button onclick="filtrarStatus('Todos')" class="ativo">Todos</button>
+<button onclick="filtrarStatus('Aguardando Retorno')">Aguardando Retorno</button>
+<button onclick="filtrarStatus('Arte não iniciada')">Arte não iniciada</button>
+<button onclick="filtrarStatus('Arte Aprovada')">Arte Aprovada</button>
+<button onclick="filtrarStatus('Produzindo')">Produzindo</button>
+<button onclick="filtrarStatus('Pedido Finalizado/Falta Pagamento')">Pedido Finalizado/Falta Pagamento</button>
+<button onclick="filtrarStatus('Pronto Para Envio')">Pronto Para Envio</button>
+<button onclick="filtrarStatus('Venda Concluida e Finalizada')">Venda Concluida e Finalizada</button>
+<button onclick="filtrarStatus('Cancelado')">Cancelado</button>
+</div>
+
 <!-- 🔹 Impressão por Status -->
 <div id="impressaoStatusContainer" style="text-align:center; margin:20px 0;">
   <select id="statusSelect">
@@ -92,21 +107,6 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
     <option value="Cancelado">Cancelado</option>
   </select>
   <button onclick="imprimirStatus()">🖨️ Imprimir por Status</button>
-</div>
-
-
-<!-- 🔹 Filtros por Status -->
-<div class="filtros" id="filtrosStatus">
-<h3>Filtrar por Status</h3>
-<button onclick="filtrarStatus('Todos')" class="ativo">Todos</button>
-<button onclick="filtrarStatus('Aguardando Retorno')">Aguardando Retorno</button>
-<button onclick="filtrarStatus('Arte não iniciada')">Arte não iniciada</button>
-<button onclick="filtrarStatus('Arte Aprovada')">Arte Aprovada</button>
-<button onclick="filtrarStatus('Produzindo')">Produzindo</button>
-<button onclick="filtrarStatus('Pedido Finalizado/Falta Pagamento')">Pedido Finalizado/Falta Pagamento</button>
-<button onclick="filtrarStatus('Pronto Para Envio')">Pronto Para Envio</button>
-<button onclick="filtrarStatus('Venda Concluida e Finalizada')">Venda Concluida e Finalizada</button>
-<button onclick="filtrarStatus('Cancelado')">Cancelado</button>
 </div>
 
 <table id="tabelaPedidos">
