@@ -78,6 +78,22 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
   <button onclick="imprimirProduto()">🖨️ Imprimir</button>
 </div>
 
+<!-- 🔹 Impressão por Status -->
+<div id="impressaoStatusContainer" style="text-align:center; margin:20px 0;">
+  <select id="statusSelect">
+    <option value="">-- Selecione um Status --</option>
+    <option value="Aguardando Retorno">Aguardando Retorno</option>
+    <option value="Arte não iniciada">Arte não iniciada</option>
+    <option value="Arte Aprovada">Arte Aprovada</option>
+    <option value="Produzindo">Produzindo</option>
+    <option value="Pedido Finalizado/Falta Pagamento">Pedido Finalizado/Falta Pagamento</option>
+    <option value="Pronto Para Envio">Pronto Para Envio</option>
+    <option value="Venda Concluida e Finalizada">Venda Concluida e Finalizada</option>
+    <option value="Cancelado">Cancelado</option>
+  </select>
+  <button onclick="imprimirStatus()">🖨️ Imprimir por Status</button>
+</div>
+
 
 <!-- 🔹 Filtros por Status -->
 <div class="filtros" id="filtrosStatus">
@@ -434,6 +450,59 @@ let pedidosFiltrados = window.todosPedidos.filter(p =>
 
   let janela = window.open("", "", "width=900,height=650");
   janela.document.write("<html><head><title>Pedidos - " + produtoEscolhido + "</title>");
+  janela.document.write("<style> body{font-family:Arial} table{margin-top:10px;} th,td{padding:6px; text-align:center;} th{background:#f0f0f0;} </style>");
+  janela.document.write("</head><body>" + conteudo + "</body></html>");
+  janela.document.close();
+  janela.print();
+}
+
+// 🔹 Impressão filtrada por status
+function imprimirStatus() {
+  let statusEscolhido = document.getElementById("statusSelect").value;
+  if (!statusEscolhido) {
+    alert("Selecione um status para imprimir!");
+    return;
+  }
+
+  let pedidosFiltrados = window.todosPedidos.filter(p => p.status === statusEscolhido);
+
+  if (pedidosFiltrados.length === 0) {
+    alert("Nenhum pedido encontrado para este status.");
+    return;
+  }
+
+  let conteudo = "<h2>Pedidos - Status: " + statusEscolhido + "</h2>";
+  conteudo += "<table border='1' cellspacing='0' cellpadding='5' style='width:100%; border-collapse: collapse;'>";
+  conteudo += "<tr><th>Cliente</th><th>Telefone</th><th>Produtos</th><th>Qtd Total</th><th>Vlr Total</th><th>Data Pedido</th><th>Data Entrega</th></tr>";
+
+  pedidosFiltrados.forEach(p => {
+    let produtos = "";
+    let qtdTotal = 0;
+    let valorTotal = 0;
+
+    if (p.itens) {
+      p.itens.forEach(item => {
+        produtos += `${item.produto} (${item.quantidade})<br>`;
+        qtdTotal += Number(item.quantidade);
+        valorTotal += item.quantidade * item.valorUnit;
+      });
+    }
+
+    conteudo += "<tr>" +
+      "<td>" + (p.nome_cliente || "") + "</td>" +
+      "<td>" + (p.telefone_cliente || "") + "</td>" +
+      "<td>" + produtos + "</td>" +
+      "<td>" + qtdTotal + "</td>" +
+      "<td>R$ " + valorTotal.toFixed(2) + "</td>" +
+      "<td>" + (p.data_pedido ? formatarData(p.data_pedido) : "") + "</td>" +
+      "<td>" + (p.data_entrega ? formatarData(p.data_entrega) : "") + "</td>" +
+    "</tr>";
+  });
+
+  conteudo += "</table>";
+
+  let janela = window.open("", "", "width=900,height=650");
+  janela.document.write("<html><head><title>Pedidos - Status: " + statusEscolhido + "</title>");
   janela.document.write("<style> body{font-family:Arial} table{margin-top:10px;} th,td{padding:6px; text-align:center;} th{background:#f0f0f0;} </style>");
   janela.document.write("</head><body>" + conteudo + "</body></html>");
   janela.document.close();
