@@ -141,7 +141,6 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 <button onclick="fecharModal()">❌ Fechar</button>
 </div>
 </div>
-<button class="btn-receber" onclick="abrirRecebimento('${pedido.id}')">💳 Receber</button>
 <script>
 // Verifica se o usuário está logado
 if(sessionStorage.getItem('isLoggedIn') !== 'true'){
@@ -353,6 +352,7 @@ function criarLinhaProduto(produto="", quantidade=1, valorUnit=0, index=null){
         <input type="number" placeholder="Quantidade" value="${quantidade}" min="0" oninput="atualizarTotalModal()">
         <input type="number" placeholder="Valor Unitário" value="${valorUnit}" step="0.01" min="0" oninput="atualizarTotalModal()">
         <button onclick="removerLinhaProduto(this)">🗑️</button>
+        <button class="btn-receber" onclick="abrirRecebimento('${pedido.id}')">💳 Receber</button>
     `;
     container.appendChild(div);
 }
