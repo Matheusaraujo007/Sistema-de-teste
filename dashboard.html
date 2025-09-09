@@ -276,6 +276,7 @@ function renderizarTabela(pedidos) {
             <td>
                 <button onclick="editarPedido(${pedido.id})">✏️ Editar</button>
                 <button onclick="removerPedido(${pedido.id})">🗑️ Remover</button>
+                <button class="btn-receber" onclick="abrirRecebimento('${pedido.id}')">💳 Receber</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -352,7 +353,6 @@ function criarLinhaProduto(produto="", quantidade=1, valorUnit=0, index=null){
         <input type="number" placeholder="Quantidade" value="${quantidade}" min="0" oninput="atualizarTotalModal()">
         <input type="number" placeholder="Valor Unitário" value="${valorUnit}" step="0.01" min="0" oninput="atualizarTotalModal()">
         <button onclick="removerLinhaProduto(this)">🗑️</button>
-        <button class="btn-receber" onclick="abrirRecebimento('${pedido.id}')">💳 Receber</button>
     `;
     container.appendChild(div);
 }
