@@ -103,22 +103,3 @@ export default async function handler(req, res) {
     client.release();
   }
 }
-if (req.method === 'GET') {
-  const { id } = req.query;
-
-  if (id) {
-    // Buscar apenas 1 pedido pelo ID
-    const result = await client.query('SELECT * FROM pedidos WHERE id = $1', [id]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Pedido não encontrado" });
-    }
-
-    res.status(200).json(result.rows[0]);
-
-  } else {
-    // Se não passar ID, retorna todos
-    const result = await client.query('SELECT * FROM pedidos ORDER BY id DESC');
-    res.status(200).json(result.rows);
-  }
-}
