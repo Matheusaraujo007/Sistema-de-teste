@@ -392,6 +392,28 @@ window.salvarEdicao = async function(){
     carregarPedidos();
 }
 
+
+let pedidoSelecionado = null;
+
+async function abrirRecebimento(idPedido) {
+  try {
+    const res = await fetch(`/api/pedidos/${idPedido}`);
+    const pedido = await res.json();
+
+    if (!res.ok) {
+      alert("❌ Erro ao carregar pedido");
+      return;
+    }
+
+    pedidoSelecionado = pedido;
+
+    // Abre a tela de recebimento
+    window.location.href = `recebimento.html?id=${pedido.id}`;
+  } catch (err) {
+    alert("❌ Erro de conexão: " + err.message);
+  }
+}
+
 window.fecharModal=function(){document.getElementById("modalEditar").style.display="none";}
 
 // Inicializa

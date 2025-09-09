@@ -151,6 +151,26 @@
     }
 
     carregarRecebimento();
+
+    window.addEventListener("DOMContentLoaded", async () => {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  if (id) {
+    try {
+      const res = await fetch(`/api/pedidos/${id}`);
+      const pedido = await res.json();
+
+      if (res.ok) {
+        document.getElementById("clienteNome").textContent = pedido.nomeCliente;
+        document.getElementById("valorTotal").textContent = pedido.valorTotal.toFixed(2).replace('.', ',');
+        document.getElementById("valorRestante").textContent = (pedido.valorTotal - pedido.valorRecebido).toFixed(2).replace('.', ',');
+      }
+    } catch (err) {
+      console.error("Erro ao carregar pedido", err);
+    }
+  }
+});
   </script>
 </body>
 </html>
