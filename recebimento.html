@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🧾 Caixa</title>
+  <title>💳 Recebimento</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,14 +11,12 @@
       padding: 0;
       background: #f4f7fb;
     }
-
     header {
       background: #2f7fb3;
       color: #fff;
       padding: 15px;
       text-align: center;
     }
-
     .container {
       max-width: 900px;
       margin: 30px auto;
@@ -27,189 +25,132 @@
       border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-
-    h2 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    .search-box {
-      display: flex;
-      margin-bottom: 20px;
-    }
-
-    .search-box input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px 0 0 8px;
-      outline: none;
-    }
-
-    .search-box button {
-      padding: 10px 20px;
-      border: none;
-      background: #2f7fb3;
-      color: #fff;
-      border-radius: 0 8px 8px 0;
-      cursor: pointer;
-    }
-
-    .search-box button:hover {
-      background: #25658d;
-    }
-
+    h2, h3 { color: #333; margin-bottom: 15px; }
     table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
+      width: 100%; border-collapse: collapse; margin-bottom: 20px;
     }
-
-    table, th, td {
-      border: 1px solid #ddd;
+    table, th, td { border: 1px solid #ddd; }
+    th, td { padding: 10px; text-align: center; }
+    th { background: #2f7fb3; color: white; }
+    .total { text-align: right; font-size: 18px; font-weight: bold; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    select, input {
+      width: 100%; padding: 10px; border: 1px solid #ccc;
+      border-radius: 6px; outline: none;
     }
-
-    th, td {
-      padding: 12px;
-      text-align: center;
+    .actions { text-align: center; margin-top: 20px; }
+    .btn {
+      padding: 12px 20px; margin: 5px;
+      border: none; border-radius: 8px;
+      cursor: pointer; font-size: 16px;
     }
-
-    th {
-      background: #2f7fb3;
-      color: #fff;
-    }
-
-    .total {
-      text-align: right;
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .actions {
-      margin-top: 20px;
-      text-align: center;
-    }
-
-    .actions button {
-      padding: 10px 20px;
-      margin: 5px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .btn-total {
-      background: #28a745;
-      color: #fff;
-    }
-
-    .btn-parcial {
-      background: #ffc107;
-      color: #000;
-    }
-
-    .btn-total:hover { background: #218838; }
-    .btn-parcial:hover { background: #e0a800; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-warning { background: #ffc107; color: #000; }
+    .btn-success:hover { background: #218838; }
+    .btn-warning:hover { background: #e0a800; }
   </style>
 </head>
 <body>
   <header>
-    <h1>🧾 Caixa</h1>
+    <h1>💳 Recebimento de Pedido</h1>
   </header>
 
-  <div class="container">
-    <h2>Buscar Cliente</h2>
-    <div class="search-box">
-      <input type="text" id="clienteNome" placeholder="Digite o nome do cliente...">
-      <button onclick="buscarCliente()">🔍 Buscar</button>
+  <div class="container" id="telaRecebimento" style="display:none;">
+    <h2>Cliente: <span id="nomeCliente"></span></h2>
+    <p>Pedido: <span id="pedidoNumero"></span></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Produto</th><th>Qtd</th><th>Unitário</th><th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="listaItens"></tbody>
+    </table>
+
+    <p class="total">Total: R$ <span id="valorTotal">0,00</span></p>
+    <p class="total">Já Recebido: R$ <span id="valorRecebido">0,00</span></p>
+    <p class="total">Saldo: R$ <span id="valorSaldo">0,00</span></p>
+
+    <div class="form-group">
+      <label for="formaPagamento">Forma de Pagamento:</label>
+      <select id="formaPagamento">
+        <option value="Pix">Pix</option>
+        <option value="Cartão Crédito">Cartão Crédito</option>
+        <option value="Cartão Débito">Cartão Débito</option>
+        <option value="Dinheiro">Dinheiro</option>
+        <option value="Boleto">Boleto</option>
+      </select>
     </div>
 
-    <div id="dadosPedido" style="display:none;">
-      <h3>Cliente: <span id="cliente"></span></h3>
-      <p>Pedido: <span id="pedido"></span></p>
+    <div class="form-group">
+      <label for="valorReceber">Valor a Receber:</label>
+      <input type="number" id="valorReceber" step="0.01" placeholder="Digite o valor">
+    </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Produto</th>
-            <th>Qtd</th>
-            <th>Preço Unitário</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody id="listaProdutos">
-        </tbody>
-      </table>
-
-      <p class="total">Total: R$ <span id="valorTotal">0,00</span></p>
-
-      <div class="actions">
-        <button class="btn-total" onclick="receberTotal()">💰 Receber Total</button>
-        <button class="btn-parcial" onclick="receberParcial()">💵 Receber Parcial</button>
-      </div>
+    <div class="actions">
+      <button class="btn btn-success" onclick="finalizarPagamento(true)">💰 Receber Total</button>
+      <button class="btn btn-warning" onclick="finalizarPagamento(false)">💵 Receber Parcial</button>
     </div>
   </div>
 
   <script>
-    // Exemplo de dados de pedidos (simulando sua base/dados já cadastrados)
-    const pedidos = [
-      {
-        cliente: "Maria Oliveira",
-        pedido: "1021",
-        produtos: [
-          { nome: "Blusa", qtd: 2, preco: 50 },
-          { nome: "Calça", qtd: 1, preco: 120 }
-        ]
-      },
-      {
-        cliente: "João da Silva",
-        pedido: "1022",
-        produtos: [
-          { nome: "Tênis", qtd: 1, preco: 200 },
-          { nome: "Meia", qtd: 3, preco: 10 }
-        ]
-      }
-    ];
+    // 🔹 Simulação: pegando pedido do Dashboard
+    const pedidoSelecionado = {
+      id: 1,
+      cliente: "Maria Oliveira",
+      numero: "1021",
+      itens: [
+        { produto: "Blusa", qtd: 2, valorUnit: 50 },
+        { produto: "Calça", qtd: 1, valorUnit: 120 }
+      ],
+      valor_recebido: 50 // já pagou parte
+    };
 
-    function buscarCliente() {
-      const nome = document.getElementById("clienteNome").value.toLowerCase();
-      const pedido = pedidos.find(p => p.cliente.toLowerCase().includes(nome));
+    // 🔹 Exibir informações
+    function carregarRecebimento() {
+      document.getElementById("telaRecebimento").style.display = "block";
+      document.getElementById("nomeCliente").innerText = pedidoSelecionado.cliente;
+      document.getElementById("pedidoNumero").innerText = pedidoSelecionado.numero;
 
-      if (pedido) {
-        document.getElementById("dadosPedido").style.display = "block";
-        document.getElementById("cliente").innerText = pedido.cliente;
-        document.getElementById("pedido").innerText = pedido.pedido;
+      const lista = document.getElementById("listaItens");
+      lista.innerHTML = "";
+      let total = 0;
+      pedidoSelecionado.itens.forEach(i => {
+        const linha = `<tr>
+                        <td>${i.produto}</td>
+                        <td>${i.qtd}</td>
+                        <td>R$ ${i.valorUnit.toFixed(2)}</td>
+                        <td>R$ ${(i.qtd * i.valorUnit).toFixed(2)}</td>
+                      </tr>`;
+        lista.innerHTML += linha;
+        total += i.qtd * i.valorUnit;
+      });
 
-        const lista = document.getElementById("listaProdutos");
-        lista.innerHTML = "";
-
-        let total = 0;
-        pedido.produtos.forEach(prod => {
-          const linha = `<tr>
-                          <td>${prod.nome}</td>
-                          <td>${prod.qtd}</td>
-                          <td>R$ ${prod.preco.toFixed(2)}</td>
-                          <td>R$ ${(prod.qtd * prod.preco).toFixed(2)}</td>
-                        </tr>`;
-          lista.innerHTML += linha;
-          total += prod.qtd * prod.preco;
-        });
-
-        document.getElementById("valorTotal").innerText = total.toFixed(2);
-      } else {
-        alert("Cliente não encontrado!");
-      }
+      document.getElementById("valorTotal").innerText = total.toFixed(2);
+      document.getElementById("valorRecebido").innerText = pedidoSelecionado.valor_recebido.toFixed(2);
+      document.getElementById("valorSaldo").innerText = (total - pedidoSelecionado.valor_recebido).toFixed(2);
     }
 
-    function receberTotal() {
-      alert("✅ Pagamento total recebido!");
+    // 🔹 Registrar pagamento
+    function finalizarPagamento(total) {
+      const forma = document.getElementById("formaPagamento").value;
+      let valor = parseFloat(document.getElementById("valorReceber").value);
+
+      const totalPedido = pedidoSelecionado.itens.reduce((acc,i)=>acc+(i.qtd*i.valorUnit),0);
+
+      if(total) valor = totalPedido - pedidoSelecionado.valor_recebido;
+      if(isNaN(valor) || valor <= 0) { alert("Digite um valor válido!"); return; }
+
+      pedidoSelecionado.valor_recebido += valor;
+      alert(`✅ Pagamento de R$ ${valor.toFixed(2)} via ${forma} registrado!`);
+
+      carregarRecebimento();
+      // 🔹 Aqui você faria um fetch PUT para atualizar no backend (/api/pedidos)
     }
 
-    function receberParcial() {
-      alert("⚠️ Pagamento parcial recebido. Valor pendente continua em aberto.");
-    }
+    carregarRecebimento();
   </script>
 </body>
 </html>
