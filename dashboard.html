@@ -475,6 +475,51 @@ let pedidosFiltrados = window.todosPedidos.filter(p =>
   janela.document.close();
   janela.print();
 }
+// -------------------- Configuração inicial --------------------
+if(sessionStorage.getItem('isLoggedIn') !== 'true'){
+    window.location.href = 'login.html';
+}
+window.todosPedidos = [];
+window.filtroProduto = "Todos";
+window.filtroStatus = "Todos";
+window.pedidoAtualEditar = null;
+
+// -------------------- Buscar pedidos --------------------
+window.carregarPedidos = async function() {
+    const res = await fetch("/api/pedidos");
+    window.todosPedidos = await res.json();
+    ordenarPedidos();
+    aplicarFiltros();
+}
+
+// 🔹 Buscar um pedido por ID
+window.buscarPedidoPorId = async function(id) {
+    try {
+        const res = await fetch(`/api/pedidos?id=${id}`);
+        if (!res.ok) {
+            alert("Pedido não encontrado!");
+            return null;
+        }
+        return await res.json();
+    } catch (err) {
+        console.error("Erro ao buscar pedido:", err);
+        alert("Erro de conexão ao buscar o pedido");
+        return null;
+    }
+}
+
+// 🔹 Função do botão "Buscar"
+window.buscarPorId = async function() {
+    const id = document.getElementById("buscarId").value;
+    if (!id) {
+        alert("Digite um ID válido!");
+        return;
+    }
+    const pedido = await buscarPedidoPorId(id);
+    if (pedido) {
+        renderizarTabela([pedido]);
+    }
+}
 </script>
 </body>
 </html>
