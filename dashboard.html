@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -19,6 +20,7 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 .saldo { font-weight: bold; color: #dc3545; display: block; margin-top: 5px; }
 .assinatura { position: absolute; top: 10px; left: 10px; font-size: 12px; color: #555; }
 .status-amarelo { background: #fff3cd; color: #856404; font-weight: bold; }
+.status-Laranja { background: #f79102; color: #ba9906; font-weight: bold; }
 .status-azul { background: #cce5ff; color: #004085; font-weight: bold; }
 .status-cinza { background: #e2e3e5; color: #383d41; font-weight: bold; }
 .status-lilas { background: #e2d6f3; color: #4a148c; font-weight: bold; }
@@ -98,6 +100,7 @@ ul { padding-left: 15px; margin: 5px 0; text-align: left; }
 <h3>Filtrar por Status</h3>
 <button onclick="filtrarStatus('Todos')" class="ativo">Todos</button>
 <button onclick="filtrarStatus('Aguardando Retorno')">Aguardando Retorno</button>
+<button onclick="filtrarStatus('Aguardando Alteração')">Aguardando Alteração</button>
 <button onclick="filtrarStatus('Arte não iniciada')">Arte não iniciada</button>
 <button onclick="filtrarStatus('Arte Aprovada')">Arte Aprovada</button>
 <button onclick="filtrarStatus('Produzindo')">Produzindo</button>
@@ -241,6 +244,7 @@ function renderizarTabela(pedidos) {
         const saldoRestante=(Number(pedido.valor_total)-Number(pedido.valor_recebido||0)).toFixed(2);
         let statusClass="";
         if(pedido.status==="Aguardando Retorno") statusClass="status-amarelo";
+        if(pedido.status==="Aguardando Alteração") statusClass="status-Laranja";
         if(pedido.status==="Arte Aprovada") statusClass="status-azul";
         if(pedido.status==="Arte não iniciada") statusClass="status-cinza";
         if(pedido.status==="Produzindo") statusClass="status-lilas";
@@ -263,6 +267,7 @@ function renderizarTabela(pedidos) {
             <td>
                 <select class="${statusClass}" onchange="atualizarStatus(${pedido.id},this.value,${pedido.valor_recebido||0},'${pedido.vendedor}','${pedido.telefone_cliente}')">
                     <option value="Aguardando Retorno" ${pedido.status==="Aguardando Retorno"?"selected":""}>Aguardando Retorno</option>
+                    <option value="Aguardando Alteração" ${pedido.status==="Aguardando Alteração"?"selected":""}>Aguardando Alteração</option>
                     <option value="Arte Aprovada" ${pedido.status==="Arte Aprovada"?"selected":""}>Arte Aprovada</option>
                     <option value="Arte não iniciada" ${pedido.status==="Arte não iniciada"?"selected":""}>Arte não iniciada</option>
                     <option value="Produzindo" ${pedido.status==="Produzindo"?"selected":""}>Produzindo</option>
