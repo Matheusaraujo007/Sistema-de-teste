@@ -150,6 +150,12 @@ if(sessionStorage.getItem('isLoggedIn') !== 'true'){
     window.location.href = 'login.html'; // redireciona para login
 }
 
+function removerAcentos(texto) {
+  return texto
+    .normalize("NFD") // separa acentos das letras
+    .replace(/[\u0300-\u036f]/g, ""); // remove acentos
+}
+
 window.todosPedidos = [];
 window.filtroProduto = "Todos";
 window.filtroStatus = "Todos";
@@ -296,7 +302,12 @@ window.aplicarFiltros = function(){
         if(Array.isArray(p.itens)) texto+=p.itens.map(i=>i.produto).join(" ");
         return texto.toLowerCase().includes(termo);
     });
-    if(window.filtroProduto!=="Todos") filtrados=filtrados.filter(p=>p.itens.some(i=>i.produto.toLowerCase().includes(window.filtroProduto.toLowerCase())));
+    if(window.filtroProduto!=="Todos") {
+  const filtroNormalizado = removerAcentos(window.filtroProduto.toLowerCase());
+  filtrados = filtrados.filter(p =>
+    p.itens.some(i => removerAcentos(i.produto.toLowerCase()).includes(filtroNormalizado))
+  );
+}
     if(window.filtroStatus!=="Todos") filtrados=filtrados.filter(p=>p.status===window.filtroStatus);
     renderizarTabela(filtrados);
 }
@@ -441,8 +452,9 @@ function imprimirProduto() {
 
 let pedidosFiltrados = window.todosPedidos.filter(p =>
   statusPermitidos.includes(p.status) &&
-  p.itens && p.itens.some(i => i.produto.toLowerCase().includes(produtoEscolhido.toLowerCase()))
-);
+  p.itens && p.itens.some(i => 
+  removerAcentos(i.produto.toLowerCase()).includes(removerAcentos(produtoEscolhido.toLowerCase()))
+  ))
 
   if (pedidosFiltrados.length === 0) {
     alert("Nenhum pedido encontrado para este produto.");
@@ -455,7 +467,7 @@ let pedidosFiltrados = window.todosPedidos.filter(p =>
 
   pedidosFiltrados.forEach(p => {
     p.itens.forEach(item => {
-      if (item.produto.toLowerCase().includes(produtoEscolhido.toLowerCase())) {
+      if (removerAcentos(item.produto.toLowerCase()).includes(removerAcentos(produtoEscolhido.toLowerCase()))) {
         conteudo += "<tr>" +
           "<td>" + (p.nome_cliente || "") + "</td>" +
           "<td>" + (p.telefone_cliente || "") + "</td>" +
