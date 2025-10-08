@@ -1,4 +1,5 @@
-import { Pool } from 'pg';
+import pkg from 'pg';
+const { Pool } = pkg;
 
 // Conexão com o Neon usando a URL que você forneceu
 const pool = new Pool({
