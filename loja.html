@@ -8,7 +8,6 @@
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
   body { background:#f4f7f9; min-height:100vh; display:flex; flex-direction:column; }
 
-  /* Cabeçalho */
   header {
     background: linear-gradient(90deg,#0077b6,#00b4d8);
     color:white;
@@ -23,15 +22,17 @@
   header h1 { font-size:1.6em; letter-spacing:1px; }
   
   .search-bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-  .search-bar input, .search-bar select {
+  .search-bar input {
     padding:10px 15px; border-radius:10px; border:none; outline:none; font-size:1em;
   }
-  .search-bar button {
-    padding:10px 20px; border:none; border-radius:10px; background:#023e8a; color:white; cursor:pointer; transition:0.3s;
+  .cart-icon {
+    cursor:pointer; font-size:1.6em; position:relative;
   }
-  .search-bar button:hover { background:#0353a4; transform:translateY(-2px); }
+  .cart-count {
+    position:absolute; top:-8px; right:-10px;
+    background:red; color:white; font-size:0.8em; padding:2px 6px; border-radius:50%;
+  }
 
-  /* Categorias */
   .categorias {
     display:flex; justify-content:center; gap:15px; margin:20px 0; flex-wrap:wrap;
   }
@@ -41,7 +42,6 @@
   }
   .categoria-btn.active, .categoria-btn:hover { background:#0077b6; }
 
-  /* Grid de produtos */
   main {
     flex:1; padding:20px; display:grid;
     grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:25px;
@@ -60,7 +60,6 @@
   .btn-comprar { background:#00b4d8; color:white; padding:12px; border:none; border-radius:10px; cursor:pointer; font-weight:600; transition:0.3s; }
   .btn-comprar:hover { background:#0077b6; transform:scale(1.05); }
 
-  /* Carrinho lateral */
   .carrinho {
     position:fixed; right:-400px; top:0; width:400px; height:100%;
     background:white; box-shadow:-2px 0 15px rgba(0,0,0,0.2);
@@ -71,7 +70,6 @@
   .item-carrinho {
     display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;
   }
-  .item-carrinho img { width:50px; border-radius:6px; margin-right:10px; }
   .item-info { flex:1; display:flex; justify-content:space-between; align-items:center; }
   .btn-remover { background:#e63946; color:white; border:none; border-radius:6px; padding:4px 8px; cursor:pointer; }
   .btn-qty { background:#0077b6; color:white; border:none; border-radius:6px; padding:2px 8px; cursor:pointer; margin:0 2px; }
@@ -82,7 +80,6 @@
   }
   .btn-finalizar:hover { background:#023e8a; }
 
-  /* Modal centralizado */
   .modal {
     position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6);
     display:flex; align-items:center; justify-content:center; z-index:300;
@@ -105,7 +102,6 @@
     width:100%; font-weight:600; cursor:pointer;
   }
 
-  /* WhatsApp flutuante */
   .whatsapp-float {
     position:fixed; bottom:25px; right:25px; background:#25D366; border-radius:50%;
     width:70px; height:70px; display:flex; justify-content:center; align-items:center;
@@ -135,16 +131,9 @@
   </div>
 </header>
 
-<div class="categorias">
-  <button class="categoria-btn active" onclick="filtrarCategoria('todas',this)">Todas</button>
-  <button class="categoria-btn" onclick="filtrarCategoria('perfumaria',this)">Perfumaria</button>
-  <button class="categoria-btn" onclick="filtrarCategoria('lingerie',this)">Lingerie</button>
-  <button class="categoria-btn" onclick="filtrarCategoria('kits',this)">Kits Presente</button>
-</div>
+<div class="categorias" id="categorias"></div>
 
-<main id="produtosContainer">
-  <!-- Produtos serão renderizados via JS -->
-</main>
+<main id="produtosContainer"></main>
 
 <div class="carrinho" id="carrinho">
   <h2>🛒 Meu Carrinho</h2>
@@ -156,116 +145,134 @@
 <div class="modal" id="modalForm">
   <div class="formulario">
     <h3>Finalize seu Pedido</h3>
-    <label>1️⃣ Seu Nome:</label><input id="Seu Nome" type="text">
-    <label>2️⃣ Retirada ou Entrega:</label><input id="Retirada ou Entrega" type="text">
-    <label>3️⃣ Nome ou frase extra:</label><input id="extra" type="text">
-    <label>4️⃣ Mais informações:</label><textarea id="mais" rows="3"></textarea>
+    <label>1️⃣ Seu Nome:</label><input id="nomeCliente" type="text">
+    <label>2️⃣ Retirada ou Entrega:</label><input id="retiradaEntrega" type="text">
+    <label>3️⃣ Observações adicionais:</label><textarea id="maisInfo" rows="3"></textarea>
     <button onclick="enviarWhatsApp()">Enviar pelo WhatsApp</button>
   </div>
 </div>
 
 <a href="https://wa.me/5588993800944" target="_blank" class="whatsapp-float" title="Fale conosco">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.651.87 5.12 2.333 7.121L5 29l6.081-1.276A11.945 11.945 0 0016 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 22a9.94 9.94 0 01-5.3-1.523l-.379-.23-3.606.756.757-3.514-.247-.358A9.935 9.935 0 016 15c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10zm5.368-7.61c-.293-.146-1.733-.857-2.002-.954-.268-.098-.464-.146-.66.146-.195.293-.758.954-.929 1.147-.171.195-.342.22-.635.073-.293-.146-1.236-.455-2.354-1.45-.87-.776-1.457-1.732-1.629-2.025-.171-.293-.018-.451.129-.597.133-.133.293-.342.439-.512.146-.171.195-.293.293-.488.098-.195.049-.366-.024-.512-.073-.146-.66-1.586-.904-2.171-.238-.571-.48-.493-.66-.503l-.562-.01c-.195 0-.512.073-.781.366s-1.024 1-1.024 2.438 1.049 2.827 1.195 3.024c.146.195 2.064 3.157 5.004 4.425.7.302 1.246.482 1.672.617.703.224 1.342.192 1.846.117.563-.084 1.733-.708 1.979-1.392.244-.683.244-1.268.171-1.392-.073-.122-.268-.195-.561-.341z"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.651.87 5.12 2.333 7.121L5 29l6.081-1.276A11.945 11.945 0 0016 27c6.627 0 12-5.373 12-12S22.627 3 16 3z"/></svg>
 </a>
 
 <footer>© 2025 Minha Loja Online — Todos os direitos reservados</footer>
 
 <script>
-const produtos = [
-  {nome:'Perfume Elegance',desc:'Fragrância envolvente e duradoura.',preco:129.9,categoria:'perfumaria',img:'produto1.jpg'},
-  {nome:'Lingerie Premium',desc:'Conforto e elegância em cada detalhe.',preco:89.9,categoria:'lingerie',img:'produto2.jpg'},
-  {nome:'Kit Presente Luxo',desc:'Perfeito para surpreender quem você ama.',preco:199.9,categoria:'kits',img:'produto3.jpg'}
-];
+let produtos = [];
+let carrinho = [];
 
-let carrinho=[];
+async function carregarProdutos() {
+  try {
+    const res = await fetch("https://sistema-de-teste-sepia.vercel.app/api/produtos");
+    produtos = await res.json();
+    renderCategorias();
+    renderProdutos();
+  } catch (err) {
+    console.error("Erro ao carregar produtos:", err);
+  }
+}
 
-const produtosContainer=document.getElementById("produtosContainer");
-const cartCount=document.getElementById("cartCount");
-const totalEl=document.getElementById("total");
+function renderCategorias() {
+  const categoriasSet = new Set(produtos.map(p => p.categoria));
+  const catDiv = document.getElementById('categorias');
+  catDiv.innerHTML = `<button class="categoria-btn active" onclick="filtrarCategoria('todas',this)">Todas</button>` +
+    Array.from(categoriasSet).map(c => `<button class="categoria-btn" onclick="filtrarCategoria('${c}',this)">${c}</button>`).join('');
+}
 
-function renderProdutos(filtro='todas'){
-  produtosContainer.innerHTML='';
-  produtos.filter(p=>filtro==='todas'?true:p.categoria===filtro)
-  .forEach(p=>{
-    const div=document.createElement('div');
-    div.className='produto';
-    div.innerHTML=`<img src="${p.img}" alt="${p.nome}"><div class="info"><h3>${p.nome}</h3><p>${p.desc}</p><p class="preco">R$ ${p.preco.toFixed(2)}</p><button class="btn-comprar" onclick="addCarrinho('${p.nome}',${p.preco})">Comprar</button></div>`;
-    produtosContainer.appendChild(div);
+function renderProdutos(filtro='todas') {
+  const container = document.getElementById('produtosContainer');
+  container.innerHTML = '';
+  produtos.filter(p => filtro==='todas' || p.categoria===filtro).forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'produto';
+    div.innerHTML = `
+      <img src="${p.imagem || 'https://via.placeholder.com/300x230'}" alt="${p.nome}">
+      <div class="info">
+        <h3>${p.nome}</h3>
+        <p>${p.descricao}</p>
+        <p class="preco">R$ ${parseFloat(p.preco).toFixed(2)}</p>
+        <button class="btn-comprar" onclick="addCarrinho('${p.nome}',${p.preco})">Comprar</button>
+      </div>`;
+    container.appendChild(div);
   });
 }
 
-renderProdutos();
-
-function filtrarCategoria(categoria,btn){
+function filtrarCategoria(categoria, btn) {
   document.querySelectorAll('.categoria-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderProdutos(categoria);
 }
 
-function filtrarProdutos(){
-  const valor=document.getElementById('searchInput').value.toLowerCase();
-  produtosContainer.innerHTML='';
-  produtos.filter(p=>p.nome.toLowerCase().includes(valor) || p.desc.toLowerCase().includes(valor))
+function filtrarProdutos() {
+  const valor = document.getElementById('searchInput').value.toLowerCase();
+  const container = document.getElementById('produtosContainer');
+  container.innerHTML = '';
+  produtos.filter(p=>p.nome.toLowerCase().includes(valor) || p.descricao.toLowerCase().includes(valor))
   .forEach(p=>{
     const div=document.createElement('div');
     div.className='produto';
-    div.innerHTML=`<img src="${p.img}" alt="${p.nome}"><div class="info"><h3>${p.nome}</h3><p>${p.desc}</p><p class="preco">R$ ${p.preco.toFixed(2)}</p><button class="btn-comprar" onclick="addCarrinho('${p.nome}',${p.preco})">Comprar</button></div>`;
-    produtosContainer.appendChild(div);
+    div.innerHTML=`<img src="${p.imagem}" alt="${p.nome}">
+    <div class="info"><h3>${p.nome}</h3><p>${p.descricao}</p><p class="preco">R$ ${parseFloat(p.preco).toFixed(2)}</p>
+    <button class="btn-comprar" onclick="addCarrinho('${p.nome}',${p.preco})">Comprar</button></div>`;
+    container.appendChild(div);
   });
 }
 
-// Carrinho
-function addCarrinho(nome,preco){
-  const existente=carrinho.find(i=>i.nome===nome);
-  if(existente){existente.qtd+=1;}
-  else{carrinho.push({nome,preco,qtd:1});}
+function addCarrinho(nome, preco) {
+  const existente = carrinho.find(i => i.nome === nome);
+  if (existente) existente.qtd++;
+  else carrinho.push({nome, preco, qtd:1});
   renderCarrinho();
 }
-function renderCarrinho(){
-  const itensDiv=document.getElementById('itensCarrinho');
-  itensDiv.innerHTML='';
-  let total=0;
+
+function renderCarrinho() {
+  const itensDiv = document.getElementById('itensCarrinho');
+  const totalEl = document.getElementById('total');
+  const cartCount = document.getElementById('cartCount');
+  itensDiv.innerHTML = '';
+  let total = 0;
   carrinho.forEach((item,i)=>{
-    total+=item.preco*item.qtd;
-    itensDiv.innerHTML+=`<div class='item-carrinho'>
-      <div class="item-info">
-        <span>${item.nome} (R$${item.preco.toFixed(2)})</span>
-        <div>
-          <button class='btn-qty' onclick='alterarQtd(${i},-1)'>-</button>
-          ${item.qtd}
-          <button class='btn-qty' onclick='alterarQtd(${i},1)'>+</button>
-          <button class='btn-remover' onclick='remover(${i})'>X</button>
+    total += item.preco * item.qtd;
+    itensDiv.innerHTML += `
+      <div class='item-carrinho'>
+        <div class="item-info">
+          <span>${item.nome} (R$${item.preco.toFixed(2)})</span>
+          <div>
+            <button class='btn-qty' onclick='alterarQtd(${i},-1)'>-</button>
+            ${item.qtd}
+            <button class='btn-qty' onclick='alterarQtd(${i},1)'>+</button>
+            <button class='btn-remover' onclick='remover(${i})'>X</button>
+          </div>
         </div>
-      </div>
-    </div>`;
+      </div>`;
   });
-  totalEl.textContent=total.toFixed(2);
-  cartCount.textContent=carrinho.reduce((a,b)=>a+b.qtd,0);
+  totalEl.textContent = total.toFixed(2);
+  cartCount.textContent = carrinho.reduce((a,b)=>a+b.qtd,0);
 }
+
 function alterarQtd(i,delta){
-  carrinho[i].qtd+=delta;
-  if(carrinho[i].qtd<1) carrinho.splice(i,1);
+  carrinho[i].qtd += delta;
+  if(carrinho[i].qtd < 1) carrinho.splice(i,1);
   renderCarrinho();
 }
+
 function remover(i){ carrinho.splice(i,1); renderCarrinho(); }
 function toggleCarrinho(){ document.getElementById('carrinho').classList.toggle('open'); }
 function abrirFormulario(){ document.getElementById('modalForm').classList.add('show'); }
 
-function enviarWhatsApp(){
-  const dados={
-    cor:document.getElementById("cor").value,
-    nomeCima:document.getElementById("nomeCima").value,
-    bandeira:document.getElementById("bandeira").value,
-    qra:document.getElementById("qra").value,
-    extra:document.getElementById("extra").value,
-    mais:document.getElementById("mais").value
-  };
-  let texto=`🛍️ *Novo Pedido*%0A%0A`;
-  carrinho.forEach(p=>texto+=`• ${p.nome} x${p.qtd} - R$ ${(p.preco*p.qtd).toFixed(2)}%0A`);
-  texto+=`%0A💬 *Informações do cliente:*%0A`;
-  for(let campo in dados){ texto+=`${campo}: ${dados[campo]}%0A`; }
+function enviarWhatsApp() {
+  const nome = document.getElementById('nomeCliente').value;
+  const entrega = document.getElementById('retiradaEntrega').value;
+  const mais = document.getElementById('maisInfo').value;
+
+  let texto = `🛍️ *Novo Pedido*%0A%0A`;
+  carrinho.forEach(p=>texto += `• ${p.nome} x${p.qtd} - R$ ${(p.preco*p.qtd).toFixed(2)}%0A`);
+  texto += `%0A👤 Nome: ${nome}%0A📦 Retirada/Entrega: ${entrega}%0A💬 Observações: ${mais}`;
   window.open(`https://wa.me/5588993800944?text=${texto}`,"_blank");
 }
+
+carregarProdutos();
 </script>
 </body>
 </html>
