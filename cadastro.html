@@ -201,114 +201,111 @@
 
 <script>
   const produtoForm = document.getElementById('produtoForm');
-
-  // --- Imagens ---
   const dropImagens = document.getElementById('dropImagens');
   const carrosselImagens = document.getElementById('carrosselImagens');
-  let imagensFiles = [];
-
-  dropImagens.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.multiple = true;
-    input.onchange = () => handleFiles(input.files, 'image');
-    input.click();
-  });
-
-  dropImagens.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropImagens.classList.add('dragover');
-  });
-
-  dropImagens.addEventListener('dragleave', () => {
-    dropImagens.classList.remove('dragover');
-  });
-
-  dropImagens.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropImagens.classList.remove('dragover');
-    handleFiles(e.dataTransfer.files, 'image');
-  });
-
-  // --- Vídeos ---
   const dropVideos = document.getElementById('dropVideos');
   const carrosselVideos = document.getElementById('carrosselVideos');
+  let imagensFiles = [];
   let videosFiles = [];
-
-  dropVideos.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'video/*';
-    input.multiple = true;
-    input.onchange = () => handleFiles(input.files, 'video');
-    input.click();
-  });
-
-  dropVideos.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropVideos.classList.add('dragover');
-  });
-
-  dropVideos.addEventListener('dragleave', () => {
-    dropVideos.classList.remove('dragover');
-  });
-
-  dropVideos.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropVideos.classList.remove('dragover');
-    handleFiles(e.dataTransfer.files, 'video');
-  });
 
   function handleFiles(files, type) {
     for (let file of files) {
-      if (type === 'image') {
-        imagensFiles.push(file);
-        const div = document.createElement('div');
-        div.classList.add('carrossel-item');
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(file);
-        const btn = document.createElement('button');
-        btn.classList.add('remove-btn');
-        btn.innerText = '×';
-        btn.onclick = () => {
-          div.remove();
-          imagensFiles = imagensFiles.filter(f => f !== file);
-        };
-        div.appendChild(img);
-        div.appendChild(btn);
-        carrosselImagens.appendChild(div);
-      } else {
-        videosFiles.push(file);
-        const div = document.createElement('div');
-        div.classList.add('carrossel-item');
-        const video = document.createElement('video');
-        video.src = URL.createObjectURL(file);
-        video.controls = true;
-        const btn = document.createElement('button');
-        btn.classList.add('remove-btn');
-        btn.innerText = '×';
-        btn.onclick = () => {
-          div.remove();
-          videosFiles = videosFiles.filter(f => f !== file);
-        };
-        div.appendChild(video);
-        div.appendChild(btn);
-        carrosselVideos.appendChild(div);
-      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (type === 'image') {
+          imagensFiles.push(e.target.result);
+          const div = document.createElement('div');
+          div.classList.add('carrossel-item');
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          const btn = document.createElement('button');
+          btn.classList.add('remove-btn');
+          btn.innerText = '×';
+          btn.onclick = () => {
+            div.remove();
+            imagensFiles = imagensFiles.filter((f) => f !== e.target.result);
+          };
+          div.appendChild(img);
+          div.appendChild(btn);
+          carrosselImagens.appendChild(div);
+        } else {
+          videosFiles.push(e.target.result);
+          const div = document.createElement('div');
+          div.classList.add('carrossel-item');
+          const video = document.createElement('video');
+          video.src = e.target.result;
+          video.controls = true;
+          const btn = document.createElement('button');
+          btn.classList.add('remove-btn');
+          btn.innerText = '×';
+          btn.onclick = () => {
+            div.remove();
+            videosFiles = videosFiles.filter((f) => f !== e.target.result);
+          };
+          div.appendChild(video);
+          div.appendChild(btn);
+          carrosselVideos.appendChild(div);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   }
 
-  produtoForm.addEventListener('submit', (e) => {
+  dropImagens.onclick = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.multiple = true;
+    input.onchange = () => handleFiles(input.files, "image");
+    input.click();
+  };
+
+  dropVideos.onclick = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "video/*";
+    input.multiple = true;
+    input.onchange = () => handleFiles(input.files, "video");
+    input.click();
+  };
+
+  produtoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    alert('Produto cadastrado com sucesso!\nImagens: ' + imagensFiles.length + ', Vídeos: ' + videosFiles.length);
-    produtoForm.reset();
-    carrosselImagens.innerHTML = '';
-    carrosselVideos.innerHTML = '';
-    imagensFiles = [];
-    videosFiles = [];
+
+    const nome = document.getElementById('nome').value;
+    const descricao = document.getElementById('descricao').value;
+    const preco = document.getElementById('preco').value;
+
+    const produto = {
+      nome,
+      descricao,
+      preco,
+      imagens: imagensFiles,
+      videos: videosFiles
+    };
+
+    try {
+      const response = await fetch('/api/produtos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(produto)
+      });
+
+      if (!response.ok) throw new Error('Erro ao cadastrar produto');
+
+      alert('✅ Produto cadastrado com sucesso!');
+      produtoForm.reset();
+      carrosselImagens.innerHTML = '';
+      carrosselVideos.innerHTML = '';
+      imagensFiles = [];
+      videosFiles = [];
+    } catch (error) {
+      console.error(error);
+      alert('❌ Erro ao cadastrar produto!');
+    }
   });
 </script>
+
 
 </body>
 </html>
