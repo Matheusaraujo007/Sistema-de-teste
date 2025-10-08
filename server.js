@@ -1,52 +1,90 @@
-import express from "express";
-import pkg from "pg";
-import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
+import express from 'express';
+import cors from 'cors';
+import pkg from 'pg';
 const { Pool } = pkg;
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+const port = 3000;
 
-// 🧩 Conexão com Neon
+// --- Configurações ---
+app.use(cors()); // libera acesso de qualquer origem
+app.use(express.json({ limit: '50mb' })); // para receber imagens grandes em base64
+
+// --- Conexão com Neon ---
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL, // configure sua variável no .env
+  connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
-// ✅ Rota para cadastrar produto
-app.post("/api/produtos", async (req, res) => {
+// --- ROTAS ---
+
+// 🟢 Produtos
+app.post('/api/produtos', async (req, res) => {
+  const client = await pool.connect();
   try {
-    const { nome, descricao, preco, imagens, video } = req.body;
+    const { nome, descricao, preco, imagens, videos } = req.body;
 
-    if (!nome || !descricao || !preco) {
-      return res.status(400).json({ error: "Campos obrigatórios faltando" });
-    }
+    await client.query(
+      `INSERT INTO produtos (nome, descricao, preco, imagens, video, criado_em)
+       VALUES ($1, $2, $3, $4, $5, NOW())`,
+      [nome, descricao, preco, imagens, videos[0] || null] // salva apenas o primeiro vídeo
+    );
 
-    const imagensArray = Array.isArray(imagens) ? imagens : [imagens];
-
-    const query = `
-      INSERT INTO produtos (nome, descricao, preco, imagens, video)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *;
-    `;
-
-    const values = [nome, descricao, preco, imagensArray, video];
-    const result = await pool.query(query, values);
-
-    res.status(201).json(result.rows[0]);
+    res.status(201).json({ message: '✅ Produto cadastrado com sucesso!' });
   } catch (err) {
-    console.error("❌ Erro ao cadastrar produto:", err.message);
-    res.status(500).json({ error: "Erro ao cadastrar produto" });
+    console.error('Erro produtos:', err);
+    res.status(500).json({ error: 'Erro ao cadastrar produto', details: err.message });
+  } finally {
+    client.release();
   }
 });
 
-// ✅ Teste simples para ver se o servidor está no ar
-app.get("/", (req, res) => {
-  res.send("Servidor rodando com sucesso!");
+app.get('/api/produtos', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query('SELECT * FROM produtos ORDER BY id DESC');
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error('Erro GET produtos:', err);
+    res.status(500).json({ error: 'Erro ao listar produtos', details: err.message });
+  } finally {
+    client.release();
+  }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
+// 🟢 Pedidos (exemplo)
+app.post('/api/pedidos', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { cliente, produto, valor } = req.body;
+    await client.query(
+      `INSERT INTO pedidos (cliente, produto, valor, criado_em)
+       VALUES ($1, $2, $3, NOW())`,
+      [cliente, produto, valor]
+    );
+    res.status(201).json({ message: '✅ Pedido cadastrado com sucesso!' });
+  } catch (err) {
+    console.error('Erro pedidos:', err);
+    res.status(500).json({ error: 'Erro ao cadastrar pedido', details: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+app.get('/api/pedidos', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query('SELECT * FROM pedidos ORDER BY id DESC');
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error('Erro GET pedidos:', err);
+    res.status(500).json({ error: 'Erro ao listar pedidos', details: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+// --- INICIAR SERVIDOR ---
+app.listen(port, () => {
+  console.log(`Servidor rodando em http://localhost:${port}`);
+});
