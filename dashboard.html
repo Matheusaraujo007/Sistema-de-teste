@@ -330,14 +330,32 @@ window.filtrarStatus = function(status){
 
 // -------------------- Atualização pedidos --------------------
 window.atualizarStatus = async function(id, novoStatus, valorRecebido, vendedor, telefone){
-    await fetch("/api/pedidos",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,status:novoStatus,valorRecebido,vendedor,telefoneCliente:telefone})});
+    // preserva anotações
+    const pedido = window.todosPedidos.find(p=>p.id===id);
+    const anotacoes = pedido ? pedido.anotacoes : "";
+
+    await fetch("/api/pedidos",{
+        method:"PUT",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({id,status:novoStatus,valorRecebido,vendedor,telefoneCliente:telefone, anotacoes})
+    });
+
     carregarPedidos();
 }
 
 window.atualizarValorRecebido = async function(id, valorRecebido, status, vendedor, telefone){
-    await fetch("/api/pedidos",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,valorRecebido,status,vendedor,telefoneCliente:telefone})});
+    const pedido = window.todosPedidos.find(p=>p.id===id);
+    const anotacoes = pedido ? pedido.anotacoes : "";
+
+    await fetch("/api/pedidos",{
+        method:"PUT",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({id,valorRecebido,status,vendedor,telefoneCliente:telefone, anotacoes})
+    });
+
     carregarPedidos();
 }
+
 
 window.removerPedido = async function(id){
     if(confirm("Deseja realmente remover este pedido?")){
