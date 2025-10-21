@@ -55,7 +55,7 @@
     flex-wrap: wrap;
   }
 
-  /* Cards de opção */
+  /* Cards */
   .card {
     background: #fff;
     width: 220px;
@@ -67,12 +67,12 @@
     align-items: center;
     box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     cursor: pointer;
-    transition: 0.4s;
+    transition: 0.3s ease;
     text-align: center;
   }
 
   .card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
     box-shadow: 0 12px 25px rgba(0,0,0,0.25);
   }
 
@@ -92,7 +92,6 @@
     color: #555;
   }
 
-  /* Responsivo */
   @media (max-width: 768px) {
     main {
       gap: 20px;
@@ -128,11 +127,12 @@
 
 <script>
   function abrirProdutos() {
-    window.location.href = "cadastro.html"; // Link da página de produtos
+    window.location.href = "cadastro.html"; // Página interna
   }
 
   function abrirLoja() {
-    window.open.href = "https://catalago-ashen.vercel.app/"; // Link da sua loja online
+    // ✅ Abre o link externo em nova aba (funciona em qualquer navegador)
+    window.open("https://catalago-ashen.vercel.app/", "_blank");
   }
 </script>
 
